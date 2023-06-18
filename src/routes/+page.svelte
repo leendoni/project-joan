@@ -58,7 +58,7 @@
 <!-- #region sidebar -->
 <SideNav bind:isOpen={isSideNavOpen} rail>
 	<SideNavItems>
-		<SideNavLink id="aboutLink" icon={Help} href="#about" text="About JOAN" />
+		<SideNavLink id="aboutLink" icon={Help} href="#about" text="About CSJD" />
 		<SideNavDivider />
 		<SideNavLink icon={TableOfContents} href="#features" text="Features" />
 		<SideNavLink icon={Api} href="#network" text="The Network" />
