@@ -1,5 +1,3 @@
-<!-- FINALIZED -->
-
 <!-- #region scripts -->
 <script>
 	import About from '../blocks/landing/about.svelte';
