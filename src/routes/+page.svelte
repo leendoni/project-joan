@@ -15,6 +15,8 @@
 		ComboBox,
 		Content,
 		Header,
+		HeaderNav,
+		HeaderPanelDivider,
 		HeaderUtilities,
 		Modal,
 		SideNav,
@@ -49,6 +51,7 @@
 
 <!-- #region header -->
 <Header company="Project" platformName="JOAN" bind:isSideNavOpen href="https://project-joan.cloud">
+	<div class="text-white invisible lg:visible">for Colegio de San Juan de Dios Incorporated</div>
 	<HeaderUtilities>
 		<Button icon={Login}>Login</Button>
 	</HeaderUtilities>
@@ -59,7 +62,7 @@
 <!-- #endregion -->
 
 <!-- #region sidebar -->
-<SideNav bind:isOpen={isSideNavOpen} rail>
+<!-- <SideNav bind:isOpen={isSideNavOpen} rail>
 	<SideNavItems>
 		<SideNavLink id="aboutLink" icon={Help} href="#about" text="About CSJD" />
 		<SideNavDivider />
@@ -70,14 +73,9 @@
 		<SideNavDivider />
 		<SideNavLink icon={IbmWatsonKnowledgeCatalog} href="#news" text="News" />
 	</SideNavItems>
-</SideNav>
+</SideNav> -->
 <!-- #endregion -->
 
-<Content id="#" class="bg-neutral-800 h-96" />
+<img id="#" class="object-cover h-96 w-full" src="images/assets/banner.jpg" alt="" />
 
 <About />
-<Features />
-<Network />
-<Demo />
-<Contact />
-<News />
