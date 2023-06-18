@@ -48,7 +48,10 @@
 <!-- #endregion -->
 
 <!-- #region header -->
-<Header company="Project" platformName="JOAN" bind:isSideNavOpen href="https://project-joan.cloud/">
+<Header company="Project" platformName="JOAN" bind:isSideNavOpen href="https://project-joan.cloud">
+	<HeaderUtilities>
+		<Button icon={Login}>Login</Button>
+	</HeaderUtilities>
 	<svelte:fragment slot="skip-to-content">
 		<SkipToContent />
 	</svelte:fragment>
