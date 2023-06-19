@@ -1,8 +1,7 @@
 <script>
-
-	import { Column, Content, Grid, Row } from "carbon-components-svelte";
-
+	import { Column, Content, Grid, Row } from 'carbon-components-svelte';
 </script>
+
 <!-- #region about-section -->
 <Content id="about">
 	<Grid>

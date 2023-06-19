@@ -6,21 +6,15 @@
 	import Features from '../blocks/landing/features.svelte';
 	import Network from '../blocks/landing/network.svelte';
 	import News from '../blocks/landing/news.svelte';
-	//#region components
+//#region components
 	import {
-		Button,
-		ClickableTile,
-		ComboBox,
 		Content,
 		Header,
-		HeaderUtilities,
-		Modal,
 		SideNav,
 		SideNavDivider,
 		SideNavItems,
 		SideNavLink,
-		SkipToContent,
-		TextArea
+		SkipToContent
 	} from 'carbon-components-svelte';
 	//#endregion
 	//#region icons
@@ -29,7 +23,6 @@
 		EventSchedule,
 		Help,
 		IbmWatsonKnowledgeCatalog,
-		Login,
 		PhoneVoice,
 		TableOfContents
 	} from 'carbon-icons-svelte';
