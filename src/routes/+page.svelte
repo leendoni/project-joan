@@ -3,47 +3,23 @@
 <!-- #region scripts -->
 <script>
 	import About from '../blocks/landing/about.svelte';
-	import Contact from '../blocks/landing/contact.svelte';
-	import Demo from '../blocks/landing/demo.svelte';
-	import Features from '../blocks/landing/features.svelte';
-	import Network from '../blocks/landing/network.svelte';
-	import News from '../blocks/landing/news.svelte';
-	//#region components
+//#region components
 	import {
 		Button,
-		ClickableTile,
-		ComboBox,
-		Content,
 		Header,
-		HeaderNav,
-		HeaderPanelDivider,
 		HeaderUtilities,
-		Modal,
-		SideNav,
-		SideNavDivider,
-		SideNavItems,
-		SideNavLink,
-		SkipToContent,
-		TextArea
+		SkipToContent
 	} from 'carbon-components-svelte';
 	//#endregion
 	//#region icons
 	import {
-		Api,
-		EventSchedule,
-		Help,
-		IbmWatsonKnowledgeCatalog,
-		Login,
-		PhoneVoice,
-		TableOfContents
+		Login
 	} from 'carbon-icons-svelte';
 	//#endregion
 	//#region pictograms
 	//#endregion
 	//#region variables
 	let isSideNavOpen = false;
-	let isLoginModalOpen = false;
-	let isSupportModalOpen = false;
 	//#endregion
 </script>
 

@@ -1,6 +1,5 @@
 <script>
-	import { ClickableTile, Column, Content, Grid, Row } from 'carbon-components-svelte';
-	import { SecureProfile, TimeLapse, TrustedUser, CloudServices } from 'carbon-pictograms-svelte';
+	import { Column, Content, Grid, Row } from 'carbon-components-svelte';
 </script>
 
 <Content id="network">

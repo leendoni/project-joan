@@ -1,6 +1,5 @@
 <script>
 	import { ClickableTile, Column, Content, Grid, Row } from 'carbon-components-svelte';
-	import { SecureProfile, TimeLapse, TrustedUser, CloudServices } from 'carbon-pictograms-svelte';
 </script>
 
 <Content id="team">
@@ -18,12 +17,10 @@
 							// custom behavior
 						}}
 					>
-						<div><img class="w-16 h-16 rounded" src="images/assets/avatar.svg" alt=""></div>
+						<div><img class="w-16 h-16 rounded" src="images/assets/avatar.svg" alt="" /></div>
 						<br />
 						<div><h4>Lyndone</h4></div>
-						<p>
-							Project Lead
-						</p>
+						<p>Project Lead</p>
 					</ClickableTile>
 				</div>
 				<div class="w-1/2 lg:w-1/4">
@@ -34,12 +31,10 @@
 							// custom behavior
 						}}
 					>
-						<div><img class="w-16 h-16 rounded" src="images/assets/avatar.svg" alt=""></div>
+						<div><img class="w-16 h-16 rounded" src="images/assets/avatar.svg" alt="" /></div>
 						<br />
 						<div><h4>Byron</h4></div>
-						<p>
-							UX Specialist
-						</p>
+						<p>UX Specialist</p>
 					</ClickableTile>
 				</div>
 				<div class="w-1/2 lg:w-1/4">
@@ -50,12 +45,10 @@
 							// custom behavior
 						}}
 					>
-						<div><img class="w-16 h-16 rounded" src="images/assets/avatar.svg" alt=""></div>
+						<div><img class="w-16 h-16 rounded" src="images/assets/avatar.svg" alt="" /></div>
 						<br />
 						<div><h4>Jemmie</h4></div>
-						<p>
-							QA Engineer
-						</p>
+						<p>QA Engineer</p>
 					</ClickableTile>
 				</div>
 				<div class="w-1/2 lg:w-1/4">
@@ -66,12 +59,10 @@
 							// custom behavior
 						}}
 					>
-						<div><img class="w-16 h-16 rounded" src="images/assets/avatar.svg" alt=""></div>
+						<div><img class="w-16 h-16 rounded" src="images/assets/avatar.svg" alt="" /></div>
 						<br />
 						<div><h4>Angel Joy</h4></div>
-						<p>
-							Analyst
-						</p>
+						<p>Analyst</p>
 					</ClickableTile>
 				</div>
 			</Column>
