@@ -17,7 +17,7 @@
 					students for the challenges of the 21st century. It also aims to develop students who are
 					competent, socially responsible, and globally competitive.
 				</h4>
-				<br>
+				<br />
 				<h4>
 					Colegio de San Juan de Dios Inc. is a school that values student excellence and
 					achievement. The school offers various programs and activities, such as sports and
