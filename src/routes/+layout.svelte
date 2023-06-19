@@ -1,6 +1,6 @@
 <script>
-	import 'carbon-components-svelte/css/all.css';
 	import '../app.postcss';
+	import 'carbon-components-svelte/css/all.css';
 </script>
 
 <svelte:head>
