@@ -1,5 +1,5 @@
 <script>
-    import PreRegistration from '../../blocks/external/preRegistration.svelte';
+	import PreRegistration from '../../blocks/external/preRegistration.svelte';
 	import {
 		Button,
 		Content,
@@ -18,11 +18,11 @@
 	<HeaderUtilities>
 		<div class="flex">
 			<div class="flex lg:hidden">
-				<Button kind="secondary" icon={PageFirst} href="../"/>
+				<Button kind="secondary" icon={PageFirst} href="../" />
 				<Button kind="primary" icon={Login} />
 			</div>
 			<div class="hidden lg:flex">
-				<Button kind="secondary" icon={PageFirst} href="../">Back to Landing Page</Button>
+				<Button kind="secondary" icon={PageFirst} href="../" iconDescription="Return to Landing Page"></Button>
 				<Button kind="primary" icon={Login}>Login</Button>
 			</div>
 		</div>
@@ -32,8 +32,10 @@
 	</svelte:fragment>
 </Header>
 
-<div class="h-96 w-full"></div>
-
-<Content>
-    <PreRegistration />
+<Content id="#" class="bg-neutral-900 h-48 flex flex-wrap text-white place-items-bottom">
+	<div class="my-20">
+		<h1>Pre-Registration</h1>
+	</div>
 </Content>
+
+<PreRegistration />
