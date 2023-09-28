@@ -32,12 +32,17 @@
 	} from 'carbon-icons-svelte';
 	// pictograms
 	// firebase
-	import { addDoc, collection } from 'firebase/firestore';
 	import { db } from '../firebase';
+	import { addDoc, collection } from 'firebase/firestore';
+	import { page } from '$app/stores';
 	// for password hashing
 	// #endregion
 	// #region database values
 	let pageID = '/';
+	let loclID,
+		loclCL,
+		loclFN,
+		loclTM = 'white'; // "white" | "g10" | "g80" | "g90" | "g100"
 	// bugreports
 	let probID, probTT, probDC, probST;
 	// #endregion
@@ -51,15 +56,16 @@
 	// #endregion
 	// #region functions
 	// #region general
-	// theme
-	let theme = 'white'; // "white" | "g10" | "g80" | "g90" | "g100"
+	// change theme
 	function toggleDark() {
-		if (theme == 'white') {
-			theme = 'g100';
-			document.documentElement.setAttribute('theme', theme);
+		if (loclTM == 'white') {
+			loclTM = 'g100';
+			document.documentElement.setAttribute('theme', loclTM);
+			localStorage.setItem('loclTM', loclTM);
 		} else {
-			theme = 'white';
-			document.documentElement.setAttribute('theme', theme);
+			loclTM = 'white';
+			document.documentElement.setAttribute('theme', loclTM);
+			localStorage.setItem('loclTM', loclTM);
 		}
 	}
 	function handleLogin() {
@@ -75,7 +81,6 @@
 		}
 		probID = result;
 	}
-
 	async function reportProb(event) {
 		if (probID === '' || probTT === '' || probDC === '') {
 			reportBugMD03 = true;
@@ -85,6 +90,7 @@
 		try {
 			const reportData = {
 				probID,
+				pageID,
 				probTT,
 				probDC,
 				probST: 'unsolved'
@@ -96,11 +102,11 @@
 			console.log('Failed to save data. Please try again.');
 		}
 	}
-
 	// #endregion
 	// #endregion
 	onMount(() => {
-		document.documentElement.setAttribute('theme', theme);
+		loclTM = localStorage.getItem('loclTM'); // get stored theme on load
+		document.documentElement.setAttribute('theme', loclTM); // set selected theme on load
 	});
 </script>
 
@@ -149,9 +155,7 @@
 	</SideNavItems>
 </SideNav>
 
-<div class="flex flex-col">
-
-</div>
+<div class="flex flex-col" />
 
 <!-- toasts -->
 
@@ -167,7 +171,7 @@
 		reportBugMD01 = false;
 	}}
 	bind:open={reportBugMD00}
-	on:open={() => (reportBugMD01 = true, reportBugMD02 = false)}
+	on:open={() => ((reportBugMD01 = true), (reportBugMD02 = false))}
 	modalHeading={reportBugMD01 ? 'Report a bug' : reportBugMD02 ? 'Bug reported' : ''}
 	size={reportBugMD02 ? 'xs' : !reportBugMD01 ? 'xs' : 'md'}
 	passiveModal={reportBugMD02 || !reportBugMD01}
