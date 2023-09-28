@@ -10,6 +10,7 @@
 		Header,
 		HeaderUtilities,
 		Modal,
+		PasswordInput,
 		ProgressBar,
 		SideNav,
 		SideNavDivider,
@@ -27,8 +28,10 @@
 		Bullhorn,
 		Calendar,
 		Catalog,
+		Checkmark,
 		ContainerSoftware,
 		Debug,
+		Edit,
 		Education,
 		EventSchedule,
 		Finance,
@@ -39,6 +42,7 @@
 		NotebookReference,
 		Notification,
 		Partnership,
+		Save,
 		Settings,
 		SettingsAdjust,
 		Stethoscope,
@@ -91,10 +95,15 @@
 	// #region functional variables
 	// sidebar
 	let sideBR = false;
+	// password
+	let editAC = false;
 	// modals
 	let reportBugMD00 = false, // open
 		reportBugMD01 = false, // default
 		reportBugMD02 = false; // success
+	let accountSTMD00 = false, // open
+		accountSTMD01 = false, // default
+		accountSTMD02 = false; // success
 	// #endregion
 	// #region functions
 	// #region general
@@ -222,7 +231,11 @@
 	<SideNav bind:isOpen={sideBR} rail>
 		{#if loclCL === 'god'}
 			<SideNavItems>
-				<SideNavLink icon={UserSettings} href="/" text="Account Settings" />
+				<SideNavLink
+					icon={UserSettings}
+					on:click={() => (accountSTMD00 = true)}
+					text="Account Information"
+				/>
 				<SideNavDivider />
 				<SideNavLink icon={Debug} href="/bugs" text="Reported Bugs" />
 				<SideNavDivider />
@@ -261,7 +274,11 @@
 		{:else if loclCL === 'admin'}
 			<SideNavItems>
 				<SideNavItems>
-					<SideNavLink icon={UserSettings} href="/" text="Account Settings" />
+					<SideNavLink
+						icon={UserSettings}
+						on:click={() => (accountSTMD00 = true)}
+						text="Account Information"
+					/>
 					<SideNavDivider />
 					<SideNavLink icon={Bullhorn} href="/bulletin" text="Campus Bulletin" />
 					<SideNavLink icon={EventSchedule} href="/schedules" text="Class Schedules" />
@@ -298,7 +315,11 @@
 			</SideNavItems>
 		{:else if loclCL === 'registrar'}
 			<SideNavItems>
-				<SideNavLink icon={UserSettings} href="/" text="Account Settings" />
+				<SideNavLink
+					icon={UserSettings}
+					on:click={() => (accountSTMD00 = true)}
+					text="Account Information"
+				/>
 				<SideNavDivider />
 				<SideNavLink icon={Bullhorn} href="/bulletin" text="Campus Bulletin" />
 				<SideNavLink icon={EventSchedule} href="/schedules" text="Class Schedules" />
@@ -310,7 +331,11 @@
 			</SideNavItems>
 		{:else if loclCL === 'cashier'}
 			<SideNavItems>
-				<SideNavLink icon={UserSettings} href="/" text="Account Settings" />
+				<SideNavLink
+					icon={UserSettings}
+					on:click={() => (accountSTMD00 = true)}
+					text="Account Information"
+				/>
 				<SideNavDivider />
 				<SideNavLink icon={Bullhorn} href="/bulletin" text="Campus Bulletin" />
 				<SideNavLink icon={EventSchedule} href="/schedules" text="Class Schedules" />
@@ -321,7 +346,11 @@
 			</SideNavItems>
 		{:else if loclCL === 'guidance'}
 			<SideNavItems>
-				<SideNavLink icon={UserSettings} href="/" text="Account Settings" />
+				<SideNavLink
+					icon={UserSettings}
+					on:click={() => (accountSTMD00 = true)}
+					text="Account Information"
+				/>
 				<SideNavDivider />
 				<SideNavLink icon={Bullhorn} href="/bulletin" text="Campus Bulletin" />
 				<SideNavLink icon={EventSchedule} href="/schedules" text="Class Schedules" />
@@ -332,7 +361,11 @@
 			</SideNavItems>
 		{:else if loclCL === 'faculty'}
 			<SideNavItems>
-				<SideNavLink icon={UserSettings} href="/" text="Account Settings" />
+				<SideNavLink
+					icon={UserSettings}
+					on:click={() => (accountSTMD00 = true)}
+					text="Account Information"
+				/>
 				<SideNavDivider />
 				<SideNavLink icon={Bullhorn} href="/bulletin" text="Campus Bulletin" />
 				<SideNavLink icon={EventSchedule} href="/schedules" text="Class Schedules" />
@@ -343,7 +376,11 @@
 			</SideNavItems>
 		{:else if loclCL === 'librarian'}
 			<SideNavItems>
-				<SideNavLink icon={UserSettings} href="/" text="Account Settings" />
+				<SideNavLink
+					icon={UserSettings}
+					on:click={() => (accountSTMD00 = true)}
+					text="Account Information"
+				/>
 				<SideNavDivider />
 				<SideNavLink icon={Bullhorn} href="/bulletin" text="Campus Bulletin" />
 				<SideNavLink icon={Finance} href="/school" text="School Information" />
@@ -352,7 +389,11 @@
 			</SideNavItems>
 		{:else if loclCL === 'nurse'}
 			<SideNavItems>
-				<SideNavLink icon={UserSettings} href="/" text="Account Settings" />
+				<SideNavLink
+					icon={UserSettings}
+					on:click={() => (accountSTMD00 = true)}
+					text="Account Information"
+				/>
 				<SideNavDivider />
 				<SideNavLink icon={Bullhorn} href="/bulletin" text="Campus Bulletin" />
 				<SideNavLink icon={Finance} href="/school" text="School Information" />
@@ -361,7 +402,11 @@
 			</SideNavItems>
 		{:else if loclCL === 'student'}
 			<SideNavItems>
-				<SideNavLink icon={UserSettings} href="/" text="Account Settings" />
+				<SideNavLink
+					icon={UserSettings}
+					on:click={() => (accountSTMD00 = true)}
+					text="Account Information"
+				/>
 				<SideNavDivider />
 				<SideNavLink icon={Bullhorn} href="/bulletin" text="Campus Bulletin" />
 				<SideNavLink icon={Finance} href="/school" text="School Information" />
@@ -376,14 +421,19 @@
 		{/if}
 	</SideNav>
 
-	<div class="flex flex-col justify-center h-screen lg:flex-row pl-10">
+	<div class="flex flex-col h-screen justify-center lg:flex-row pl-10">
 		<!-- displayed on mobile -->
 		<Content class="self-center">
 			<h1>Pick a module.</h1>
 			<br />
-			<p class="italic">
+			<p>
 				Welcome to Project JOAN, <strong>{loclFN}</strong>. Select a module from the sidebar to get
 				started.
+			</p>
+			<br />
+			<p class="italic text-sm">
+				If no module appears, wait 1-3 days for your System Administrator to designate a user class
+				for your account.
 			</p>
 		</Content>
 		<Content />
@@ -416,9 +466,9 @@
 	bind:open={reportBugMD00}
 	on:open={() => ((reportBugMD01 = true), (reportBugMD02 = false))}
 	modalHeading={reportBugMD01 ? 'Report a bug' : reportBugMD02 ? 'Bug reported' : ''}
+	primaryButtonText="Submit"
 	size={reportBugMD02 ? 'xs' : !reportBugMD01 ? 'xs' : 'md'}
 	passiveModal={reportBugMD02 || !reportBugMD01}
-	primaryButtonText="Submit"
 >
 	{#if reportBugMD01}
 		<br />
@@ -463,4 +513,173 @@
 		<br />
 		<p>Error reporting bug. Make sure to fill up all fields.</p>
 	{/if}
+</Modal>
+<Modal
+	bind:open={accountSTMD00}
+	on:click:button--primary={() => (editAC = false)}
+	on:click:button--primary={() => (accountSTMD01 = true)}
+	on:click:button--secondary={() => (editAC = true)}
+	modalHeading="Account Information"
+	primaryButtonText="Save"
+	primaryButtonDisabled={!editAC}
+	secondaryButtonText="Edit"
+	hasScrollingContent
+>
+	<Content>
+		<div class="flex flex-col lg:flex-row">
+			<div class="w-full lg:w-1/4 lg:self-center">
+				<h6 class="underline">Login Details</h6>
+			</div>
+			<br />
+			<div class="flex flex-col w-full gap-4">
+				<TextInput
+					labelText="Account ID"
+					placeholder="System-generated account ID"
+					readonly
+				/>
+				<TextInput
+					labelText="Username"
+					placeholder="System-generated username"
+					readonly
+				/>
+				<PasswordInput
+					labelText="Password"
+					placeholder="Your password"
+					tooltipPosition="left"
+					disabled={!editAC}
+				/>
+				<TextInput
+					labelText="Current User Class"
+					placeholder="Designated user-class"
+					readonly
+				/>
+			</div>
+		</div>
+		<br />
+		<hr class="outline-black" />
+		<br />
+		{#if loclCL === 'student'}
+			<div class="flex flex-col lg:flex-row">
+				<div class="w-full lg:w-1/4 lg:self-center">
+					<h6 class="underline">Student Information</h6>
+				</div>
+				<br />
+				<div class="flex flex-col w-full">
+					<div class="flex flex-col w-full gap-4">
+						<TextInput labelText="Last Name" placeholder="Your last name" readonly={!editAC} />
+						<TextInput labelText="First Name" placeholder="Your first name" readonly={!editAC} />
+						<TextInput labelText="Middle Name" placeholder="Your middle name" readonly={!editAC} />
+						<TextInput
+							labelText="Suffix (if any)"
+							placeholder="Sr., Jr., III., etc."
+							readonly={!editAC}
+						/>
+						<TextInput
+							labelText="Student Address"
+							placeholder="Your complete address"
+							readonly={!editAC}
+						/>
+					</div>
+					<br />
+					<div class="flex flex-col w-full lg:flex-row gap-4">
+						<TextInput
+							labelText="Student Contact Number"
+							placeholder="Your contact number"
+							readonly={!editAC}
+						/>
+						<TextInput
+							labelText="Emergency Contact Number"
+							placeholder="Your emergency contact number"
+							readonly={!editAC}
+						/>
+					</div>
+					<br />
+					<div class="flex flex-col w-full gap-4">
+						<TextInput
+							labelText="Mother's Name"
+							placeholder="Your mother's name"
+							readonly={!editAC}
+						/>
+						<TextInput
+							labelText="Father's Name"
+							placeholder="Your father's name"
+							readonly={!editAC}
+						/>
+						<TextInput
+							labelText="Guardian's Name"
+							placeholder="Your guardian's name"
+							readonly={!editAC}
+						/>
+					</div>
+				</div>
+			</div>
+		{:else}
+			<div class="flex flex-col lg:flex-row">
+				<div class="w-full lg:w-1/4 lg:self-center">
+					<h6 class="underline">Personal Information</h6>
+				</div>
+				<br />
+				<div class="flex flex-col w-full">
+					<div class="flex flex-col w-full gap-4">
+						<TextInput
+							labelText="Last Name"
+							placeholder="Enter your last name"
+							readonly={!editAC}
+						/>
+						<TextInput
+							labelText="First Name"
+							placeholder="Enter your first name"
+							readonly={!editAC}
+						/>
+						<TextInput
+							labelText="Middle Name"
+							placeholder="Enter your middle name"
+							readonly={!editAC}
+						/>
+						<TextInput
+							labelText="Suffix (if any)"
+							placeholder="Sr., Jr., III., etc."
+							readonly={!editAC}
+						/>
+						<TextInput
+							labelText="Employee Address"
+							placeholder="Enter your complete address"
+							readonly={!editAC}
+						/>
+						<TextInput
+							labelText="Employee Contact Number"
+							placeholder="Your contact number"
+							readonly={!editAC}
+						/>
+						<TextInput
+							labelText="Emergency Contact Number"
+							placeholder="Your emergency contact number"
+							readonly={!editAC}
+						/>
+					</div>
+					<br />
+					<div class="flex flex-col w-full gap-4">
+						<TextInput
+							labelText="Contact Person"
+							placeholder="Enter your contact person's name"
+							readonly={!editAC}
+						/>
+						<TextInput
+							labelText="Relation (optional)"
+							placeholder="Your relationship to your contact person"
+							readonly={!editAC}
+						/>
+					</div>
+				</div>
+			</div>
+		{/if}
+	</Content>
+</Modal>
+<Modal
+	bind:open={accountSTMD01}
+	on:close={() => (accountSTMD01 = false)}
+	modalHeading="Account Details Changed"
+	passiveModal
+>
+	Success
 </Modal>

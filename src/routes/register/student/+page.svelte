@@ -53,6 +53,7 @@
 		userFA = '',
 		userGA = '',
 		userCP = '',
+		userCR = '',
 		userCN = '',
 		userEC = '';
 	// login data
@@ -237,6 +238,11 @@
 					</div>
 					<br />
 					<div class="flex flex-col w-full lg:flex-row gap-2">
+						<NumberInput label="Student Contact Number" value={0} hideSteppers />
+						<NumberInput label="Emergency Contact Number" value={0} hideSteppers />
+					</div>
+					<br />
+					<div class="flex flex-col w-full lg:flex-row gap-2">
 						<div class="flex flex-row w-full">
 							<TextInput labelText="Mother's Name" placeholder="Enter your mother's name" />
 							<div class="pt-6">
@@ -273,11 +279,6 @@
 								/>
 							</div>
 						</div>
-					</div>
-					<br />
-					<div class="flex flex-col w-full lg:flex-row gap-2">
-						<NumberInput label="Student Contact Number" value={0} hideSteppers />
-						<NumberInput label="Emergency Contact Number" value={0} hideSteppers />
 					</div>
 				</div>
 			</div>
