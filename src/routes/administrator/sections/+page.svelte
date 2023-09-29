@@ -69,7 +69,7 @@
 	// for password hashing
 	// #endregion
 	// #region database values
-	let pageID = '/administrator/subjects';
+	let pageID = '/administrator/sections';
 	let dbConn = false;
 	// database values
 	const getSchoolID = doc(db, 'schools', '0303001');
@@ -180,19 +180,32 @@
 	// #region page logic
 	let edit = false;
 
-	let subjHeader = [
-		{ key: 'subjAY', value: 'Academic Year' },
-		{ key: 'subjID', value: 'Subject ID' },
-		{ key: 'subjYR', value: 'Subject Year' },
-		{ key: 'subjNM', value: 'Subject Name' },
-		{ key: 'subjTC', value: 'Subject Teacher' }
+	let sectHeader = [
+		{ key: 'sectAY', value: 'Academic Year' },
+		{ key: 'sectID', value: 'Section ID' },
+		{ key: 'sectYR', value: 'Section Year' },
+		{ key: 'sectNM', value: 'Section Name' },
+		{ key: 'sectTS', value: 'Total Students' },
+		{ key: 'sectST', value: 'Section Status' }
 	];
 
-	let subjRow = [];
-	let subjSize = 10;
-	let subjPage = 1;
+	let sectRow = [];
+	let sectSize = 10;
+	let sectPage = 1;
 
 	let selectedRowIds = []; // get toggled radio
+
+	let listHeader = [
+		{ key: 'userID', value: 'Account ID' },
+		{ key: 'userLN', value: 'Last Name' },
+		{ key: 'userFN', value: 'First Name' },
+		{ key: 'userMN', value: 'Middle Name' },
+		{ key: 'userSX', value: 'Gender' }
+	];
+
+	let listRow = [];
+	let listSize = 10;
+	let listPage = 1;
 	// #endregion
 	onMount(async () => {
 		loclTM = localStorage.getItem('loclTM'); // get stored theme on load
@@ -222,7 +235,7 @@
 </script>
 
 <Header company="Project" platformName="JOAN" href="/">
-	<div class="text-white hidden lg:flex">Subject Management</div>
+	<div class="text-white hidden lg:flex">Section Management</div>
 	<HeaderUtilities>
 		<div class="flex">
 			<div class="flex">
@@ -285,8 +298,8 @@
 				<SideNavDivider />
 				<SideNavMenu expanded icon={SettingsAdjust} text="Management Modules">
 					<SideNavLink href="/administrator/users" text="User Management" />
-					<SideNavLink href="/administrator/sections" text="Section Management" />
-					<SideNavLink isSelected href="/administrator/subjects" text="Subject Management" />
+					<SideNavLink isSelected href="/administrator/sections" text="Section Management" />
+					<SideNavLink href="/administrator/subjects" text="Subject Management" />
 					<SideNavLink href="/administrator/schedules" text="Schedule Management" />
 					<SideNavLink href="/administrator/bulletin" text="Bulletin Management" />
 				</SideNavMenu>
@@ -328,8 +341,8 @@
 					<SideNavDivider />
 					<SideNavMenu expanded icon={SettingsAdjust} text="Management Modules">
 						<SideNavLink href="/administrator/users" text="User Management" />
-						<SideNavLink href="/administrator/sections" text="Section Management" />
-						<SideNavLink isSelected href="/administrator/subjects" text="Subject Management" />
+						<SideNavLink isSelected href="/administrator/sections" text="Section Management" />
+						<SideNavLink href="/administrator/subjects" text="Subject Management" />
 						<SideNavLink href="/administrator/schedules" text="Schedule Management" />
 						<SideNavLink href="/administrator/bulletin" text="Bulletin Management" />
 					</SideNavMenu>
@@ -481,10 +494,10 @@
 						zebra
 						sortable
 						size="short"
-						headers={subjHeader}
-						rows={subjRow}
-						page={subjPage}
-						pageSize={subjSize}
+						headers={sectHeader}
+						rows={sectRow}
+						page={sectPage}
+						pageSize={sectSize}
 						bind:selectedRowIds
 					>
 						<Toolbar>
@@ -526,9 +539,9 @@
 						</Toolbar>
 					</DataTable>
 					<Pagination
-						bind:pageSize={subjSize}
-						bind:page={subjPage}
-						totalItems={subjRow.length}
+						bind:pageSize={sectSize}
+						bind:page={sectPage}
+						totalItems={sectRow.length}
 						pageSizeInputDisabled
 					/>
 					<!-- <Pagination {rows} /> -->
@@ -577,15 +590,15 @@
 								]}
 								disabled={!edit}
 							/>
-							<TextInput labelText="Subject ID" placeholder="Subject ID here" readonly />
+							<TextInput labelText="Section ID" placeholder="Section ID here" readonly />
 							<TextInput
-								labelText="Subject Name"
-								placeholder="Subject name here"
+								labelText="Section Name"
+								placeholder="Section name here"
 								readonly={!edit}
 							/>
 							<ComboBox
-								titleText="Subject Status"
-								placeholder="Subject status"
+								titleText="Section Status"
+								placeholder="Section status"
 								items={[
 									{ id: '0', text: 'ACTIVE' },
 									{ id: '1', text: 'INACTIVE' }
@@ -593,8 +606,21 @@
 								disabled={!edit}
 							/>
 						</div>
+						<div class="flex flex-col w-full lg:flex-row gap-2">
+							<TextInput
+								labelText="Total Male Students"
+								placeholder="Total here"
+								readonly={!edit}
+							/>
+							<TextInput
+								labelText="Total Female Students"
+								placeholder="Total here"
+								readonly={!edit}
+							/>
+							<TextInput labelText="Total Students" placeholder="Total here" readonly={!edit} />
+						</div>
 						<ComboBox
-							titleText="Subject Adviser"
+							titleText="Section Adviser"
 							placeholder="Select adviser"
 							items={[
 								{ id: '0', text: 'ACTIVE' },
@@ -603,6 +629,48 @@
 							disabled={!edit}
 						/>
 					</div>
+				</div>
+			</div>
+			<br />
+			<hr />
+			<br />
+			<div class="hidden md:flex lg:flex gap-2">
+				<div class="w-screen">
+					<DataTable
+						zebra
+						sortable
+						size="short"
+						headers={listHeader}
+						rows={listRow}
+						page={listPage}
+						pageSize={listSize}
+					>
+						<Toolbar>
+							<ToolbarContent>
+								<ToolbarSearch shouldFilterRows />
+								<Button
+									kind="ghost"
+									icon={Recycle}
+									iconDescription="Reload"
+									tooltipPosition="left"
+								/>
+								<Button
+									kind="primary"
+									icon={Export}
+									iconDescription="Export Masterlist"
+									tooltipPosition="left"
+									bind:disabled={edit}
+								/>
+							</ToolbarContent>
+						</Toolbar>
+					</DataTable>
+					<Pagination
+						bind:pageSize={listSize}
+						bind:page={listPage}
+						totalItems={listRow.length}
+						pageSizeInputDisabled
+					/>
+					<!-- <Pagination {rows} /> -->
 				</div>
 			</div>
 		</Content>

@@ -28,10 +28,8 @@
 		Bullhorn,
 		Calendar,
 		Catalog,
-		Checkmark,
 		ContainerSoftware,
 		Debug,
-		Edit,
 		Education,
 		EventSchedule,
 		Finance,
@@ -42,7 +40,6 @@
 		NotebookReference,
 		Notification,
 		Partnership,
-		Save,
 		Settings,
 		SettingsAdjust,
 		Stethoscope,
@@ -180,7 +177,7 @@
 			loclCL = localStorage.getItem('userCL');
 			loclFN = localStorage.getItem('userFN');
 
-			headTX = 'Pick a module.';
+			headTX = 'Select a module.';
 			descTX = 'On the sidebar, choose the module that you want to work on.';
 		} catch (error) {
 			console.error('Failed. :', error);
@@ -245,11 +242,13 @@
 				<SideNavDivider />
 				<SideNavMenu icon={SettingsAdjust} text="Management Modules">
 					<SideNavLink href="/administrator/users" text="User Management" />
+					<SideNavLink href="/administrator/sections" text="Section Management" />
 					<SideNavLink href="/administrator/subjects" text="Subject Management" />
 					<SideNavLink href="/administrator/schedules" text="Schedule Management" />
 					<SideNavLink href="/administrator/bulletin" text="Bulletin Management" />
 				</SideNavMenu>
 				<SideNavMenu icon={Education} text="Academic Modules">
+					<SideNavLink href="/academic/sections" text="Sections" />
 					<SideNavLink href="/academic/students" text="Students" />
 					<SideNavLink href="/academic/subjects" text="Subjects" />
 					<SideNavLink href="/academic/gradebook" text="Gradebook" />
@@ -424,11 +423,10 @@
 	<div class="flex flex-col h-screen justify-center lg:flex-row pl-10">
 		<!-- displayed on mobile -->
 		<Content class="self-center">
-			<h1>Pick a module.</h1>
+			<h1>Select a module.</h1>
 			<br />
 			<p>
-				Welcome to Project JOAN, <strong>{loclFN}</strong>. Select a module from the sidebar to get
-				started.
+				Welcome, <strong>{loclFN}</strong>. Pick a module from the sidebar to get started.
 			</p>
 			<br />
 			<p class="italic text-sm">
@@ -532,27 +530,15 @@
 			</div>
 			<br />
 			<div class="flex flex-col w-full gap-4">
-				<TextInput
-					labelText="Account ID"
-					placeholder="System-generated account ID"
-					readonly
-				/>
-				<TextInput
-					labelText="Username"
-					placeholder="System-generated username"
-					readonly
-				/>
+				<TextInput labelText="Account ID" placeholder="System-generated account ID" readonly />
+				<TextInput labelText="Username" placeholder="System-generated username" readonly />
 				<PasswordInput
 					labelText="Password"
 					placeholder="Your password"
 					tooltipPosition="left"
 					disabled={!editAC}
 				/>
-				<TextInput
-					labelText="Current User Class"
-					placeholder="Designated user-class"
-					readonly
-				/>
+				<TextInput labelText="Current User Class" placeholder="Designated user-class" readonly />
 			</div>
 		</div>
 		<br />

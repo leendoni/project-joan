@@ -8,6 +8,7 @@
 		Button,
 		ButtonSet,
 		Checkbox,
+		ComboBox,
 		Content,
 		Header,
 		HeaderUtilities,
@@ -48,6 +49,7 @@
 		userFN = '',
 		userMN = '',
 		userSF = '',
+		userSX = '',
 		userAD = '',
 		userMA = '',
 		userFA = '',
@@ -170,7 +172,7 @@
 </script>
 
 <Header company="Project" platformName="JOAN" href="/">
-	<div class="text-white hidden lg:flex">Registration</div>
+	<div class="text-white hidden lg:flex">Student Registration</div>
 	<HeaderUtilities>
 		<div class="flex">
 			<div class="flex">
@@ -234,6 +236,14 @@
 					</div>
 					<br />
 					<div class="flex flex-col w-full lg:flex-row gap-2">
+						<ComboBox
+							titleText="Gender"
+							placeholder="Select gender"
+							items={[
+								{ id: '0', text: 'Male' },
+								{ id: '1', text: 'Female' }
+							]}
+						/>
 						<TextInput labelText="Student Address" placeholder="Enter your complete address" />
 					</div>
 					<br />
