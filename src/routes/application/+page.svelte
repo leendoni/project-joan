@@ -6,7 +6,6 @@
 	// components
 	import {
 		Button,
-		ButtonSet,
 		Checkbox,
 		ComboBox,
 		Content,
@@ -16,21 +15,19 @@
 		NumberInput,
 		PasswordInput,
 		ProgressBar,
-		RadioButton,
-		RadioButtonGroup,
 		TextArea,
 		TextInput
 	} from 'carbon-components-svelte';
 	// icons
-	import { Asleep, Checkmark, Debug, DotMark, Logout, Pen, Return } from 'carbon-icons-svelte';
+	import { Asleep, Checkmark, Debug, Home, Pen, Return } from 'carbon-icons-svelte';
 	// pictograms
 	// firebase
-	import { addDoc, collection, doc, getDocs } from 'firebase/firestore';
-	import { db } from '../../../firebase';
+	import { addDoc, collection, doc, getDocs, query, where } from 'firebase/firestore';
+	import { db } from '../../firebase';
 	// for password hashing
 	// #endregion
 	// #region database values
-	let pageID = '/register/employee';
+	let pageID = '/application/student';
 	let dbConn = false;
 	// database values
 	const getSchoolID = doc(db, 'schools', '0303001');
@@ -44,6 +41,10 @@
 		userST = '',
 		userUN = '',
 		userPW = '',
+		userAY = '2023-2024',
+		userSM = 'Second',
+		userYR = '',
+		userSC = '',
 		userLR = '',
 		userLN = '',
 		userFN = '',
@@ -56,8 +57,8 @@
 		userGA = '',
 		userCP = '',
 		userCR = '',
-		userCN = '',
-		userEC = '';
+		userCN = 0,
+		userEC = 0;
 	// login data
 	let nputUN = '',
 		nputPW = '',
@@ -78,14 +79,22 @@
 	let progTX = '',
 		headTX = '',
 		descTX = '';
+	// person picker
+	let pickMA = true,
+		pickFA = true,
+		pickGA = true;
 	// #endregion
 	// #region functional variables
 	// confirm
 	let confirm = false;
+	let invalid = true;
 	// modals
 	let reportBugMD00 = false, // open
 		reportBugMD01 = false, // default
 		reportBugMD02 = false; // success
+	let studApplyMD00 = false, // open
+		studApplyMD01 = false, // default
+		studApplyMD02 = false; // success
 	// #endregion
 	// #region functions
 	// #region general
@@ -100,6 +109,10 @@
 			document.documentElement.setAttribute('theme', loclTM);
 			localStorage.setItem('loclTM', loclTM);
 		}
+	}
+
+	function goHome() {
+		goto('/');
 	}
 
 	function goLogin() {
@@ -142,6 +155,138 @@
 		}
 	}
 
+	function selectMA() {
+		pickMA = true;
+		pickFA = false;
+		pickGA = false;
+		userCP = userMA;
+		userCR = 'Mother';
+	}
+
+	function selectFA() {
+		pickMA = false;
+		pickFA = true;
+		pickGA = false;
+		userCP = userFA;
+        userCR = 'Father';
+	}
+
+	function selectGA() {
+		pickMA = false;
+		pickFA = false;
+		pickGA = true;
+		userCP = userGA;
+        userCR = 'Guardian';
+	}
+
+	function generateUserID() {
+		const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        
+		let result = '';
+		for (let i = 0; i < 8; i++) {
+			result += characters.charAt(Math.floor(Math.random() * characters.length));
+		}
+
+		userID = result;
+	}
+
+	async function checkUserCN(value) {
+		const getSchoolID = doc(db, 'schools', '0303001');
+		const getUsers = collection(getSchoolID, 'users');
+		const q = query(getUsers, where('userCN', '==', value));
+		const snapshot = await getDocs(q);
+		return !snapshot.empty; // Returns true if the entry exists
+	}
+
+	async function registerUser(event) {
+		let fillST, xistST;
+		let duplCN = await checkUserCN(userCN);
+
+        // check empty
+		if (
+			userID == '' ||
+			userCN == 0 ||
+			userLN == '' ||
+			userFN == '' ||
+			userMN == '' ||
+			userSX == '' ||
+			userAD == '' ||
+			userEC == 0 ||
+			userCP == '' ||
+			userMA == '' ||
+			userFA == ''
+		) {
+			confirm = false;
+			fillST = false;
+			studApplyMD01 = true; // fill all modal
+		} else {
+			fillST = true;
+		}
+
+		if (duplCN) {
+			confirm = false;
+			xistST = true;
+			studApplyMD02 = true; // exists modal
+		} else {
+			xistST = false;
+		}
+
+		if (fillST && !xistST) {
+			confirm = false;
+
+			event.preventDefault();
+
+			// Construct the data object
+			const userData = {
+				userID,
+		        userCL: 'student',
+		        userST: 'INACTIVE',
+		        userUN,
+		        userPW,
+		        userAY,
+		        userSM,
+		        userYR,
+		        userSC,
+		        userLR,
+		        userLN,
+		        userFN,
+		        userMN,
+		        userSF,
+		        userSX,
+		        userAD,
+		        userMA,
+		        userFA,
+		        userGA,
+		        userCP,
+		        userCR,
+		        userCN,
+		        userEC
+			};
+
+			// check duplicates
+			if (duplCN) {
+				return; // Don't proceed with saving the data if there are duplicates
+			} else {
+				try {
+					await uploadUser(userData);
+                    studApplyMD00 = true; // success modal
+				} catch (e) {
+					console.log('Failed to save data. Please try again.');
+				}
+			}
+		}
+	}
+
+    async function uploadUser(data) {
+		try {
+			const docRef = await addDoc(collection(db, 'schools', '0303001', 'users'), data);
+			console.log('Document written with ID: ', docRef.id);
+			return docRef.id; // you can return the ID to further use it if needed
+		} catch (e) {
+			console.error('Error adding document: ', e);
+			throw e; // re-throwing the error for the caller to handle
+		}
+	}
 	// #endregion
 	// #endregion
 	onMount(async () => {
@@ -172,7 +317,7 @@
 </script>
 
 <Header company="Project" platformName="JOAN" href="/">
-	<div class="text-white hidden lg:flex">Employee Registration</div>
+	<div class="text-white hidden lg:flex">Student Application</div>
 	<HeaderUtilities>
 		<div class="flex">
 			<div class="flex">
@@ -191,12 +336,12 @@
 					icon={Asleep}
 				/>
 				<Button
-					on:click={goLogin}
+					on:click={goHome}
 					on:click={handleLogout}
 					tooltipPosition="left"
 					iconDescription="Logout"
 					kind="primary"
-					icon={Return}
+					icon={Home}
 				/>
 			</div>
 		</div>
@@ -207,36 +352,59 @@
 	<div class="flex flex-col">
 		<!-- displayed on mobile -->
 		<Content class="flex flex-col bg-neutral-900 h-72">
-			<h1 class="pt-32 lg:pt-44 text-white">Employee Registration</h1>
+			<h1 class="pt-32 lg:pt-44 text-white">Student Application</h1>
 		</Content>
 		<Content class="h-auto">
+			<p>Fill up the form to submit your application.</p>
+			<br />
+			<hr />
+			<br />
 			<div class="flex flex-col lg:flex-row">
 				<div class="w-full lg:w-1/4 lg:self-center">
 					<h6 class="underline">Academic Information</h6>
 				</div>
 				<br />
 				<div class="flex flex-col w-full lg:flex-row gap-2">
-					<TextInput labelText="Academic Year" value="2023-2024" readonly />
-					<TextInput labelText="Academic Semester" value="Second" readonly />
-					<TextInput labelText="Learner's Reference Number" placeholder="Enter your LRN" />
+					<TextInput bind:value={userAY} labelText="Academic Year" readonly />
+					<TextInput bind:value={userSM} labelText="Academic Semester" readonly />
+					<NumberInput bind:value={userCN} label="Contact Number" hideSteppers />
 				</div>
 			</div>
-			<br /><br /><br />
+			<br />
+			<hr />
+			<br />
 			<div class="flex flex-col lg:flex-row">
 				<div class="w-full lg:w-1/4 lg:self-center">
-					<h6 class="underline">Personal Information</h6>
+					<h6 class="underline">Student Information</h6>
 				</div>
 				<br />
 				<div class="flex flex-col w-full">
 					<div class="flex flex-col w-full lg:flex-row gap-2">
-						<TextInput labelText="Last Name" placeholder="Enter your last name" />
-						<TextInput labelText="First Name" placeholder="Enter your first name" />
-						<TextInput labelText="Middle Name" placeholder="Enter your middle name" />
-						<TextInput labelText="Suffix (if any)" placeholder="Sr., Jr., III., etc." />
+						<TextInput
+							bind:value={userLN}
+							labelText="Last Name"
+							placeholder="Enter your last name"
+						/>
+						<TextInput
+							bind:value={userFN}
+							labelText="First Name"
+							placeholder="Enter your first name"
+						/>
+						<TextInput
+							bind:value={userMN}
+							labelText="Middle Name"
+							placeholder="Enter your middle name"
+						/>
+						<TextInput
+							bind:value={userSF}
+							labelText="Suffix (if any)"
+							placeholder="Sr., Jr., III., etc."
+						/>
 					</div>
 					<br />
 					<div class="flex flex-col w-full lg:flex-row gap-2">
 						<ComboBox
+							bind:value={userSX}
 							titleText="Gender"
 							placeholder="Select gender"
 							items={[
@@ -244,48 +412,111 @@
 								{ id: '1', text: 'Female' }
 							]}
 						/>
-						<TextInput labelText="Employee Address" placeholder="Enter your complete address" />
-					</div>
-					<br />
-					<div class="flex flex-col w-full lg:flex-row gap-2">
-						<NumberInput label="Employee Contact Number" value={0} hideSteppers />
-						<NumberInput label="Emergency Contact Number" value={0} hideSteppers />
-					</div>
-					<br />
-					<div class="flex flex-col w-full lg:flex-row gap-2">
-						<TextInput labelText="Contact Person" placeholder="Enter your contact person's name" />
 						<TextInput
-							labelText="Relation (optional)"
-							placeholder="Your relationship to your contact person"
+							bind:value={userAD}
+							labelText="Student Address"
+							placeholder="Enter your complete address"
 						/>
+					</div>
+					<br />
+					<div class="flex flex-col w-full lg:flex-row gap-2">
+						<NumberInput bind:value={userEC} label="Emergency Contact Number" hideSteppers />
+						<TextInput
+							bind:value={userCP}
+							labelText="Emergency Contact Person"
+							placeholder="Select from the three below"
+							readonly
+						/>
+					</div>
+					<br />
+					<div class="flex flex-col w-full lg:flex-row gap-2">
+						<div class="flex flex-row w-full">
+							<TextInput
+								bind:value={userMA}
+								labelText="Mother's Name"
+								placeholder="Enter your mother's name"
+							/>
+							<div class="pt-6">
+								<Button
+									on:click={selectMA}
+									disabled={!pickMA}
+									size="field"
+									kind="secondary"
+									iconDescription="Primary Emergency Contact"
+									icon={Checkmark}
+									tooltipPosition="left"
+								/>
+							</div>
+						</div>
+						<div class="flex flex-row w-full">
+							<TextInput
+								bind:value={userFA}
+								labelText="Father's Name"
+								placeholder="Enter your father's name"
+							/>
+							<div class="pt-6">
+								<Button
+									on:click={selectFA}
+									disabled={!pickFA}
+									size="field"
+									kind="secondary"
+									iconDescription="Primary Emergency Contact"
+									icon={Checkmark}
+									tooltipPosition="left"
+								/>
+							</div>
+						</div>
+						<div class="flex flex-row w-full">
+							<TextInput
+								bind:value={userGA}
+								labelText="Guardian's Name (optional)"
+								placeholder="Enter your guardian's name"
+							/>
+							<div class="pt-6">
+								<Button
+									on:click={selectGA}
+									disabled={!pickGA}
+									size="field"
+									kind="secondary"
+									iconDescription="Primary Emergency Contact"
+									icon={Checkmark}
+									tooltipPosition="left"
+								/>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
-			<br /><br /><br />
+			<br />
+			<hr />
+			<br />
 			<div class="flex flex-col lg:flex-row">
 				<div class="w-full lg:w-1/4 lg:self-center">
 					<h6 class="underline">Account Information</h6>
 				</div>
 				<br />
 				<div class="flex flex-col w-full lg:flex-row gap-2">
-					<TextInput labelText="Account ID" placeholder="System-generated account ID" readonly />
-					<TextInput labelText="Username" placeholder="System-generated username" readonly />
-					<PasswordInput
-						labelText="Password"
-						placeholder="Enter your password"
-						tooltipPosition="left"
+					<TextInput
+						bind:value={userID}
+						labelText="Account ID"
+						placeholder="System-generated account ID"
 						readonly
 					/>
 				</div>
 			</div>
-			<br /><br /><br />
+			<br />
+			<hr />
+			<br />
 			<div class="flex flex-col lg:items-center lg:flex-row">
 				<Checkbox
 					bind:checked={confirm}
+                    on:click={generateUserID}
 					labelText="I certify that the information above is correct."
 				/>
 				<br />
-				<Button disabled={!confirm} icon={Pen}>Register</Button>
+				<Button on:click={registerUser} disabled={!confirm} icon={Pen}
+					>Register</Button
+				>
 			</div>
 		</Content>
 	</div>
@@ -364,4 +595,44 @@
 		<br />
 		<p>Error reporting bug. Make sure to fill up all fields.</p>
 	{/if}
+</Modal>
+<Modal
+	bind:open={studApplyMD00}
+	on:close={goHome}
+	modalHeading="Application Received!"
+	size="xs"
+	passiveModal
+>
+	<div class="flex flex-col content-center">
+		<div>
+			<br />
+			<p class="italic">Account Code:</p>
+			<h3>{userID}</h3>
+			<br />
+		</div>
+		<div>
+			<p class="italic">
+				Important: <strong>Jot down your account code or take a screenshot</strong> as this will be presented
+				upon enrollment.
+			</p>
+		</div>
+	</div>
+</Modal>
+<Modal bind:open={studApplyMD01} modalHeading="Application Denied." size="xs" passiveModal>
+	<div class="flex flex-col content-center">
+		<div>
+			<p class="italic">
+				Make sure to fill up all required fields before submitting your application.
+			</p>
+		</div>
+	</div>
+</Modal>
+<Modal bind:open={studApplyMD02} modalHeading="Duplicate Application." size="xs" passiveModal>
+	<div class="flex flex-col content-center">
+		<div>
+			<p class="italic">
+				The contact number you used is already in use by another applicant.
+			</p>
+		</div>
+	</div>
 </Modal>

@@ -356,11 +356,6 @@
 						<br />
 					</div>
 				</Form>
-				<br /><br />
-				<div>
-					New student?
-					<Link href="/register/student" icon={Carbon}>Register here.</Link>.
-				</div>
 			</Content>
 		</div>
 	{/if}

@@ -45,6 +45,7 @@
 		EventSchedule,
 		Filter,
 		Finance,
+		GroupObjectsNew,
 		Home,
 		Information,
 		Logout,
@@ -181,7 +182,7 @@
 	// #region page logic
 	let edit = false;
 
-	let headers = [
+	let userHeader = [
 		{ key: 'userID', value: 'Account ID' },
 		{ key: 'userLR', value: 'Student LRN' },
 		{ key: 'userLN', value: 'Last Name' },
@@ -190,11 +191,12 @@
 		{ key: 'userON', value: 'Status' }
 	];
 
-	let rows = [];
-	let pageSize = 10;
-	let page = 1;
+	let userRow = [];
+	let userSize = 10;
+	let userPage = 1;
 
 	let selectedRowIds = []; // get toggled radio
+	
 	// #endregion
 	onMount(async () => {
 		loclTM = localStorage.getItem('loclTM'); // get stored theme on load
@@ -223,7 +225,7 @@
 	});
 </script>
 
-<Header company="Project" platformName="JOAN" href="/">
+<Header company="Project" platformName="JOAN" href="/home">
 	<div class="text-white hidden lg:flex">User Management</div>
 	<HeaderUtilities>
 		<div class="flex">
@@ -242,20 +244,11 @@
 					kind="secondary"
 					icon={Asleep}
 				/>
-				<div class="hidden lg:flex">
-					<Button
-						tooltipPosition="left"
-						iconDescription="Notifications"
-						kind="secondary"
-						icon={Notification}
-					/>
-				</div>
 				<Button
-					on:click={goLogin}
 					tooltipPosition="left"
-					iconDescription="Return home"
-					kind="primary"
-					icon={Home}
+					iconDescription="Notifications"
+					kind="secondary"
+					icon={Notification}
 				/>
 				<Button
 					on:click={goHome}
@@ -285,16 +278,17 @@
 				<SideNavLink icon={EventSchedule} href="/schedules" text="Class Schedules" />
 				<SideNavLink icon={Finance} href="/school" text="School Information" />
 				<SideNavDivider />
-				<SideNavMenu expanded icon={SettingsAdjust} text="Management Modules">
-					<SideNavLink isSelected href="/administrator/users" text="User Management" />
+				<SideNavMenu icon={SettingsAdjust} text="Management Modules">
+					<SideNavLink href="/administrator/users" text="User Management" />
 					<SideNavLink href="/administrator/sections" text="Section Management" />
 					<SideNavLink href="/administrator/subjects" text="Subject Management" />
 					<SideNavLink href="/administrator/schedules" text="Schedule Management" />
 					<SideNavLink href="/administrator/bulletin" text="Bulletin Management" />
 				</SideNavMenu>
 				<SideNavMenu icon={Education} text="Academic Modules">
+					<SideNavLink href="/academic/admission" text="Admissions" />
+					<SideNavLink href="/academic/enrollment" text="Enrollments" />
 					<SideNavLink href="/academic/sections" text="Sections" />
-					<SideNavLink href="/academic/students" text="Students" />
 					<SideNavLink href="/academic/subjects" text="Subjects" />
 					<SideNavLink href="/academic/gradebook" text="Gradebook" />
 					<hr />
@@ -306,7 +300,7 @@
 					<SideNavLink href="/finance/defaults" text="Financial Settings" />
 				</SideNavMenu>
 				<SideNavMenu icon={ContainerSoftware} text="Miscellaneous Modules">
-					<SideNavLink href="/library" text="Library" />
+					<SideNavLink href="/library" text="Library Management" />
 					<SideNavLink href="/health" text="Health Records" />
 				</SideNavMenu>
 				<SideNavDivider />
@@ -315,7 +309,7 @@
 				<SideNavDivider />
 				<SideNavLink icon={Box} href="/archives" text="System Archives" />
 			</SideNavItems>
-		{:else if loclCL === 'admin'}
+		{:else if loclCL === 'administrator'}
 			<SideNavItems>
 				<SideNavItems>
 					<SideNavLink
@@ -328,16 +322,16 @@
 					<SideNavLink icon={EventSchedule} href="/schedules" text="Class Schedules" />
 					<SideNavLink icon={Finance} href="/school" text="School Information" />
 					<SideNavDivider />
-					<SideNavMenu expanded icon={SettingsAdjust} text="Management Modules">
-						<SideNavLink isSelected href="/administrator/users" text="User Management" />
-						<SideNavLink href="/administrator/sections" text="Section Management" />
+					<SideNavMenu icon={SettingsAdjust} text="Management Modules">
+						<SideNavLink href="/administrator/users" text="User Management" />
 						<SideNavLink href="/administrator/subjects" text="Subject Management" />
 						<SideNavLink href="/administrator/schedules" text="Schedule Management" />
 						<SideNavLink href="/administrator/bulletin" text="Bulletin Management" />
 					</SideNavMenu>
 					<SideNavMenu icon={Education} text="Academic Modules">
+						<SideNavLink href="/academic/admission" text="Admissions" />
+						<SideNavLink href="/academic/enrollment" text="Enrollments" />
 						<SideNavLink href="/academic/sections" text="Sections" />
-						<SideNavLink href="/academic/students" text="Students" />
 						<SideNavLink href="/academic/subjects" text="Subjects" />
 						<SideNavLink href="/academic/gradebook" text="Gradebook" />
 						<hr />
@@ -349,7 +343,7 @@
 						<SideNavLink href="/finance/defaults" text="Financial Settings" />
 					</SideNavMenu>
 					<SideNavMenu icon={ContainerSoftware} text="Miscellaneous Modules">
-						<SideNavLink href="/library" text="Library" />
+						<SideNavLink href="/library" text="Library Management" />
 						<SideNavLink href="/health" text="Health Records" />
 					</SideNavMenu>
 					<SideNavDivider />
@@ -358,6 +352,21 @@
 					<SideNavDivider />
 					<SideNavLink icon={Box} href="/archives" text="System Archives" />
 				</SideNavItems>
+			</SideNavItems>
+		{:else if loclCL === 'admission'}
+			<SideNavItems>
+				<SideNavLink
+					icon={UserSettings}
+					on:click={() => (accountSTMD00 = true)}
+					text="Account Information"
+				/>
+				<SideNavDivider />
+				<SideNavLink icon={Bullhorn} href="/bulletin" text="Campus Bulletin" />
+				<SideNavLink icon={EventSchedule} href="/schedules" text="Class Schedules" />
+				<SideNavLink icon={Finance} href="/school" text="School Information" />
+				<SideNavDivider />
+				<SideNavLink icon={GroupObjectsNew} href="/academic/admission" text="Admissions" />
+				<SideNavLink icon={Notebook} href="/academic/subjects" text="Subjects" />
 			</SideNavItems>
 		{:else if loclCL === 'registrar'}
 			<SideNavItems>
@@ -371,8 +380,8 @@
 				<SideNavLink icon={EventSchedule} href="/schedules" text="Class Schedules" />
 				<SideNavLink icon={Finance} href="/school" text="School Information" />
 				<SideNavDivider />
+				<SideNavLink icon={Education} href="/academic/enrollment" text="Enrollments" />
 				<SideNavLink icon={Categories} href="/academic/sections" text="Sections" />
-				<SideNavLink icon={Education} href="/academic/students" text="Students" />
 				<SideNavLink icon={Notebook} href="/academic/subjects" text="Subjects" />
 				<SideNavLink icon={NotebookReference} href="/academic/gradebook" text="Gradebook" />
 			</SideNavItems>
@@ -432,7 +441,7 @@
 				<SideNavLink icon={Bullhorn} href="/bulletin" text="Campus Bulletin" />
 				<SideNavLink icon={Finance} href="/school" text="School Information" />
 				<SideNavDivider />
-				<SideNavLink icon={Book} href="/library" text="Library" />
+				<SideNavLink icon={Book} href="/library" text="Library Management" />
 			</SideNavItems>
 		{:else if loclCL === 'nurse'}
 			<SideNavItems>
@@ -468,7 +477,7 @@
 		{/if}
 	</SideNav>
 
-	{#if loclCL === 'god' || loclCL === 'admin'}
+	{#if loclCL === 'god' || loclCL === 'administrator'}
 		<Content>
 			<div class="flex md:hidden lg:hidden">
 				<p>
@@ -483,10 +492,10 @@
 						zebra
 						sortable
 						size="short"
-						{headers}
-						{rows}
-						{page}
-						{pageSize}
+						headers={userHeader}
+						rows={userRow}
+						page={userPage}
+						pageSize={userSize}
 						bind:selectedRowIds
 					>
 						<Toolbar>
@@ -525,7 +534,7 @@
 							</ToolbarContent>
 						</Toolbar>
 					</DataTable>
-					<Pagination bind:pageSize bind:page totalItems={rows.length} pageSizeInputDisabled />
+					<Pagination bind:pageSize={userSize} bind:page={userPage} totalItems={userRow.length} pageSizeInputDisabled />
 					<!-- <Pagination {rows} /> -->
 				</div>
 			</div>

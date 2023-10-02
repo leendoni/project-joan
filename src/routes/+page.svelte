@@ -27,6 +27,7 @@
 		Login,
 		Network_4,
 		Partnership,
+		Pen,
 		Quotes,
 		UpdateNow
 	} from 'carbon-icons-svelte';
@@ -129,12 +130,12 @@
 					icon={Asleep}
 				/>
 				<Button
-					on:click={handleLogin}
+					href="/application"
 					tooltipPosition="left"
 					iconDescription="Login"
 					kind="primary"
-					icon={Login}
-				/>
+					icon={Pen}
+				>Apply now</Button>
 			</div>
 		</div>
 	</HeaderUtilities>

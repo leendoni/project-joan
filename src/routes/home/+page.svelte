@@ -27,12 +27,17 @@
 		Box,
 		Bullhorn,
 		Calendar,
+		CalendarSettings,
 		Catalog,
+		CatalogPublish,
+		Categories,
 		ContainerSoftware,
 		Debug,
 		Education,
 		EventSchedule,
+		Events,
 		Finance,
+		GroupObjectsNew,
 		Information,
 		Logout,
 		Money,
@@ -40,6 +45,7 @@
 		NotebookReference,
 		Notification,
 		Partnership,
+		Report,
 		Settings,
 		SettingsAdjust,
 		Stethoscope,
@@ -248,8 +254,9 @@
 					<SideNavLink href="/administrator/bulletin" text="Bulletin Management" />
 				</SideNavMenu>
 				<SideNavMenu icon={Education} text="Academic Modules">
+					<SideNavLink href="/academic/admission" text="Admissions" />
+					<SideNavLink href="/academic/enrollment" text="Enrollments" />
 					<SideNavLink href="/academic/sections" text="Sections" />
-					<SideNavLink href="/academic/students" text="Students" />
 					<SideNavLink href="/academic/subjects" text="Subjects" />
 					<SideNavLink href="/academic/gradebook" text="Gradebook" />
 					<hr />
@@ -261,58 +268,17 @@
 					<SideNavLink href="/finance/defaults" text="Financial Settings" />
 				</SideNavMenu>
 				<SideNavMenu icon={ContainerSoftware} text="Miscellaneous Modules">
-					<SideNavLink href="/library" text="Library" />
+					<SideNavLink href="/library" text="Library Management" />
 					<SideNavLink href="/health" text="Health Records" />
 				</SideNavMenu>
 				<SideNavDivider />
 				<SideNavLink icon={Information} href="/about" text="System Information" />
+				<SideNavLink icon={Report} href="/reports" text="System Reports" />
 				<SideNavLink icon={Settings} href="/defaults" text="System Settings" />
 				<SideNavDivider />
-				<SideNavLink icon={Box} href="/archives" text="System Archives" />
+				<SideNavLink icon={Box} href="/archives" text="Archives" />
 			</SideNavItems>
-		{:else if loclCL === 'admin'}
-			<SideNavItems>
-				<SideNavItems>
-					<SideNavLink
-						icon={UserSettings}
-						on:click={() => (accountSTMD00 = true)}
-						text="Account Information"
-					/>
-					<SideNavDivider />
-					<SideNavLink icon={Bullhorn} href="/bulletin" text="Campus Bulletin" />
-					<SideNavLink icon={EventSchedule} href="/schedules" text="Class Schedules" />
-					<SideNavLink icon={Finance} href="/school" text="School Information" />
-					<SideNavDivider />
-					<SideNavMenu icon={SettingsAdjust} text="Management Modules">
-						<SideNavLink href="/administrator/users" text="User Management" />
-						<SideNavLink href="/administrator/subjects" text="Subject Management" />
-						<SideNavLink href="/administrator/schedules" text="Schedule Management" />
-						<SideNavLink href="/administrator/bulletin" text="Bulletin Management" />
-					</SideNavMenu>
-					<SideNavMenu icon={Education} text="Academic Modules">
-						<SideNavLink href="/academic/students" text="Students" />
-						<SideNavLink href="/academic/subjects" text="Subjects" />
-						<SideNavLink href="/academic/gradebook" text="Gradebook" />
-						<hr />
-						<SideNavLink href="/guidance/records" text="Guidance Records" />
-						<SideNavLink href="/guidance/defaults" text="Guidance Settings" />
-					</SideNavMenu>
-					<SideNavMenu icon={Money} text="Financial Modules">
-						<SideNavLink href="/finance/transact" text="Financial Transactions" />
-						<SideNavLink href="/finance/defaults" text="Financial Settings" />
-					</SideNavMenu>
-					<SideNavMenu icon={ContainerSoftware} text="Miscellaneous Modules">
-						<SideNavLink href="/library" text="Library" />
-						<SideNavLink href="/health" text="Health Records" />
-					</SideNavMenu>
-					<SideNavDivider />
-					<SideNavLink icon={Information} href="/about" text="System Information" />
-					<SideNavLink icon={Settings} href="/defaults" text="System Settings" />
-					<SideNavDivider />
-					<SideNavLink icon={Box} href="/archives" text="System Archives" />
-				</SideNavItems>
-			</SideNavItems>
-		{:else if loclCL === 'registrar'}
+		{:else if loclCL === 'administrator'}
 			<SideNavItems>
 				<SideNavLink
 					icon={UserSettings}
@@ -324,9 +290,58 @@
 				<SideNavLink icon={EventSchedule} href="/schedules" text="Class Schedules" />
 				<SideNavLink icon={Finance} href="/school" text="School Information" />
 				<SideNavDivider />
-				<SideNavLink icon={Education} href="/academic/students" text="Students" />
+				<SideNavLink icon={Events} href="/administrator/users" text="User Management" />
+				<SideNavLink
+					icon={NotebookReference}
+					href="/administrator/subjects"
+					text="Subject Management"
+				/>
+				<SideNavLink
+					icon={CalendarSettings}
+					href="/administrator/schedules"
+					text="Schedule Management"
+				/>
+				<SideNavLink
+					icon={CatalogPublish}
+					href="/administrator/bulletin"
+					text="Bulletin Management"
+				/>
+				<SideNavDivider />
+				<SideNavLink icon={Information} href="/about" text="System Information" />
+				<SideNavLink icon={Report} href="/reports" text="System Reports" />
+				<SideNavLink icon={Settings} href="/defaults" text="System Settings" />
+			</SideNavItems>
+		{:else if loclCL === 'admission'}
+			<SideNavItems>
+				<SideNavLink
+					icon={UserSettings}
+					on:click={() => (accountSTMD00 = true)}
+					text="Account Information"
+				/>
+				<SideNavDivider />
+				<SideNavLink icon={Bullhorn} href="/bulletin" text="Campus Bulletin" />
+				<SideNavLink icon={Finance} href="/school" text="School Information" />
+				<SideNavDivider />
+				<SideNavLink icon={GroupObjectsNew} href="/academic/admission" text="Admissions" />
+				<SideNavLink icon={Notebook} href="/academic/subjects" text="Subjects" />
+			</SideNavItems>
+		{:else if loclCL === 'registrar'}
+			<SideNavItems>
+				<SideNavLink
+					icon={UserSettings}
+					on:click={() => (accountSTMD00 = true)}
+					text="Account Information"
+				/>
+				<SideNavDivider />
+				<SideNavLink icon={Bullhorn} href="/bulletin" text="Campus Bulletin" />
+				<SideNavLink icon={Finance} href="/school" text="School Information" />
+				<SideNavDivider />
+				<SideNavLink icon={Education} href="/academic/enrollment" text="Enrollments" />
+				<SideNavLink icon={Categories} href="/academic/sections" text="Sections" />
 				<SideNavLink icon={Notebook} href="/academic/subjects" text="Subjects" />
 				<SideNavLink icon={NotebookReference} href="/academic/gradebook" text="Gradebook" />
+				<SideNavDivider />
+				<SideNavLink icon={Box} href="/archives" text="Archives" />
 			</SideNavItems>
 		{:else if loclCL === 'cashier'}
 			<SideNavItems>
@@ -337,7 +352,6 @@
 				/>
 				<SideNavDivider />
 				<SideNavLink icon={Bullhorn} href="/bulletin" text="Campus Bulletin" />
-				<SideNavLink icon={EventSchedule} href="/schedules" text="Class Schedules" />
 				<SideNavLink icon={Finance} href="/school" text="School Information" />
 				<SideNavDivider />
 				<SideNavLink icon={Money} href="/finance/transact" text="Financial Transactions" />
@@ -384,7 +398,7 @@
 				<SideNavLink icon={Bullhorn} href="/bulletin" text="Campus Bulletin" />
 				<SideNavLink icon={Finance} href="/school" text="School Information" />
 				<SideNavDivider />
-				<SideNavLink icon={Book} href="/library" text="Library" />
+				<SideNavLink icon={Book} href="/library" text="Library Management" />
 			</SideNavItems>
 		{:else if loclCL === 'nurse'}
 			<SideNavItems>
@@ -414,17 +428,17 @@
 				<SideNavLink icon={Catalog} href="/student/grades" text="Subject Grades" />
 				<SideNavLink icon={Money} href="/student/transactions" text="Balance & Transactions" />
 			</SideNavItems>
+		{:else if loclCL === 'employee'}
+			<SideNavItems />
 		{:else}
 			<!-- return to login if no stored class -->
 			{goto('/login')}
 		{/if}
 	</SideNav>
 
-	<div class="flex flex-col h-screen justify-center lg:flex-row pl-10">
-		<!-- displayed on mobile -->
+	<div class="flex flex-col h-screen justify-center pl-10">
 		<Content class="self-center">
 			<h1>Select a module.</h1>
-			<br />
 			<p>
 				Welcome, <strong>{loclFN}</strong>. Pick a module from the sidebar to get started.
 			</p>
@@ -434,7 +448,6 @@
 				for your account.
 			</p>
 		</Content>
-		<Content />
 	</div>
 {:else}
 	<div class="flex flex-col items-stretch lg:flex-row">

@@ -221,7 +221,7 @@
 	});
 </script>
 
-<Header company="Project" platformName="JOAN" href="/">
+<Header company="Project" platformName="JOAN" href="/home">
 	<div class="text-white hidden lg:flex">Subject Management</div>
 	<HeaderUtilities>
 		<div class="flex">
@@ -240,20 +240,11 @@
 					kind="secondary"
 					icon={Asleep}
 				/>
-				<div class="hidden lg:flex">
-					<Button
-						tooltipPosition="left"
-						iconDescription="Notifications"
-						kind="secondary"
-						icon={Notification}
-					/>
-				</div>
 				<Button
-					on:click={goLogin}
 					tooltipPosition="left"
-					iconDescription="Return home"
-					kind="primary"
-					icon={Home}
+					iconDescription="Notifications"
+					kind="secondary"
+					icon={Notification}
 				/>
 				<Button
 					on:click={goHome}
