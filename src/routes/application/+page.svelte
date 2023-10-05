@@ -13,13 +13,12 @@
 		HeaderUtilities,
 		Modal,
 		NumberInput,
-		PasswordInput,
 		ProgressBar,
 		TextArea,
 		TextInput
 	} from 'carbon-components-svelte';
 	// icons
-	import { Asleep, Checkmark, Debug, Home, Pen, Return } from 'carbon-icons-svelte';
+	import { Asleep, Checkmark, Debug, Home, Pen } from 'carbon-icons-svelte';
 	// pictograms
 	// firebase
 	import { addDoc, collection, doc, getDocs, query, where } from 'firebase/firestore';
@@ -29,12 +28,13 @@
 	// #region database values
 	let pageID = '/application/student';
 	let dbConn = false;
-	// database values
-	const getSchoolID = doc(db, 'schools', '0303001');
-	const getUsers = collection(getSchoolID, 'users');
 	// schoolyear data
-	let acadYR = '',
-		acadSM = '';
+	let schlID = '0303001',
+		acadYR = '2023-2024',
+		acadSM = 'Second';
+	// database values
+	const getSchoolID = doc(db, schlID, acadYR);
+	const getUsers = collection(db, schlID, 'data', 'users');
 	// user data
 	let userID = '',
 		userCL = '',
@@ -168,7 +168,7 @@
 		pickFA = true;
 		pickGA = false;
 		userCP = userFA;
-        userCR = 'Father';
+		userCR = 'Father';
 	}
 
 	function selectGA() {
@@ -176,12 +176,12 @@
 		pickFA = false;
 		pickGA = true;
 		userCP = userGA;
-        userCR = 'Guardian';
+		userCR = 'Guardian';
 	}
 
 	function generateUserID() {
 		const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-        
+
 		let result = '';
 		for (let i = 0; i < 8; i++) {
 			result += characters.charAt(Math.floor(Math.random() * characters.length));
@@ -191,7 +191,7 @@
 	}
 
 	async function checkUserCN(value) {
-		const getSchoolID = doc(db, 'schools', '0303001');
+		const getSchoolID = doc(db, schlID, acadYR);
 		const getUsers = collection(getSchoolID, 'users');
 		const q = query(getUsers, where('userCN', '==', value));
 		const snapshot = await getDocs(q);
@@ -202,7 +202,7 @@
 		let fillST, xistST;
 		let duplCN = await checkUserCN(userCN);
 
-        // check empty
+		// check empty
 		if (
 			userID == '' ||
 			userCN == 0 ||
@@ -239,28 +239,28 @@
 			// Construct the data object
 			const userData = {
 				userID,
-		        userCL: 'student',
-		        userST: 'INACTIVE',
-		        userUN,
-		        userPW,
-		        userAY,
-		        userSM,
-		        userYR,
-		        userSC,
-		        userLR,
-		        userLN,
-		        userFN,
-		        userMN,
-		        userSF,
-		        userSX,
-		        userAD,
-		        userMA,
-		        userFA,
-		        userGA,
-		        userCP,
-		        userCR,
-		        userCN,
-		        userEC
+				userCL: 'student',
+				userST: 'INACTIVE',
+				userUN,
+				userPW,
+				userAY,
+				userSM,
+				userYR,
+				userSC,
+				userLR,
+				userLN,
+				userFN,
+				userMN,
+				userSF,
+				userSX,
+				userAD,
+				userMA,
+				userFA,
+				userGA,
+				userCP,
+				userCR,
+				userCN,
+				userEC
 			};
 
 			// check duplicates
@@ -269,7 +269,7 @@
 			} else {
 				try {
 					await uploadUser(userData);
-                    studApplyMD00 = true; // success modal
+					studApplyMD00 = true; // success modal
 				} catch (e) {
 					console.log('Failed to save data. Please try again.');
 				}
@@ -277,9 +277,9 @@
 		}
 	}
 
-    async function uploadUser(data) {
+	async function uploadUser(data) {
 		try {
-			const docRef = await addDoc(collection(db, 'schools', '0303001', 'users'), data);
+			const docRef = await addDoc(collection(db, schlID, 'data', 'users'), data);
 			console.log('Document written with ID: ', docRef.id);
 			return docRef.id; // you can return the ID to further use it if needed
 		} catch (e) {
@@ -294,9 +294,6 @@
 		document.documentElement.setAttribute('theme', loclTM); // set selected theme on load
 
 		try {
-			const getSchoolID = doc(db, 'schools', '0303001');
-			progTX = 'Retrieving...';
-			const getUsers = collection(getSchoolID, 'users');
 			progTX = 'Connecting...';
 			await getDocs(getUsers);
 			console.log('Connected.');
@@ -364,7 +361,7 @@
 					<h6 class="underline">Academic Information</h6>
 				</div>
 				<br />
-				<div class="flex flex-col w-full lg:flex-row gap-2">
+				<div class="flex flex-col w-full lg:flex-row gap-3">
 					<TextInput bind:value={userAY} labelText="Academic Year" readonly />
 					<TextInput bind:value={userSM} labelText="Academic Semester" readonly />
 					<NumberInput bind:value={userCN} label="Contact Number" hideSteppers />
@@ -379,7 +376,7 @@
 				</div>
 				<br />
 				<div class="flex flex-col w-full">
-					<div class="flex flex-col w-full lg:flex-row gap-2">
+					<div class="flex flex-col w-full lg:flex-row gap-3">
 						<TextInput
 							bind:value={userLN}
 							labelText="Last Name"
@@ -402,7 +399,7 @@
 						/>
 					</div>
 					<br />
-					<div class="flex flex-col w-full lg:flex-row gap-2">
+					<div class="flex flex-col w-full lg:flex-row gap-3">
 						<ComboBox
 							bind:value={userSX}
 							titleText="Gender"
@@ -419,7 +416,7 @@
 						/>
 					</div>
 					<br />
-					<div class="flex flex-col w-full lg:flex-row gap-2">
+					<div class="flex flex-col w-full lg:flex-row gap-3">
 						<NumberInput bind:value={userEC} label="Emergency Contact Number" hideSteppers />
 						<TextInput
 							bind:value={userCP}
@@ -429,7 +426,7 @@
 						/>
 					</div>
 					<br />
-					<div class="flex flex-col w-full lg:flex-row gap-2">
+					<div class="flex flex-col w-full lg:flex-row gap-3">
 						<div class="flex flex-row w-full">
 							<TextInput
 								bind:value={userMA}
@@ -495,7 +492,7 @@
 					<h6 class="underline">Account Information</h6>
 				</div>
 				<br />
-				<div class="flex flex-col w-full lg:flex-row gap-2">
+				<div class="flex flex-col w-full lg:flex-row gap-3">
 					<TextInput
 						bind:value={userID}
 						labelText="Account ID"
@@ -510,13 +507,11 @@
 			<div class="flex flex-col lg:items-center lg:flex-row">
 				<Checkbox
 					bind:checked={confirm}
-                    on:click={generateUserID}
+					on:click={generateUserID}
 					labelText="I certify that the information above is correct."
 				/>
 				<br />
-				<Button on:click={registerUser} disabled={!confirm} icon={Pen}
-					>Register</Button
-				>
+				<Button on:click={registerUser} disabled={!confirm} icon={Pen}>Register</Button>
 			</div>
 		</Content>
 	</div>
@@ -630,9 +625,7 @@
 <Modal bind:open={studApplyMD02} modalHeading="Duplicate Application." size="xs" passiveModal>
 	<div class="flex flex-col content-center">
 		<div>
-			<p class="italic">
-				The contact number you used is already in use by another applicant.
-			</p>
+			<p class="italic">The contact number you used is already in use by another applicant.</p>
 		</div>
 	</div>
 </Modal>

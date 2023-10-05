@@ -3,7 +3,7 @@
 	// svelte
 	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
-	// components
+// components
 	import {
 		Button,
 		ComboBox,
@@ -42,9 +42,7 @@
 		Edit,
 		Education,
 		EventSchedule,
-		Export,
 		Finance,
-		Home,
 		Information,
 		Logout,
 		Money,
@@ -71,9 +69,13 @@
 	// #region database values
 	let pageID = '/administrator/subjects';
 	let dbConn = false;
+	// schoolyear data
+	let schlID = '0303001',
+		acadYR = '2023-2024',
+		acadSM = 'Second';
 	// database values
-	const getSchoolID = doc(db, 'schools', '0303001');
-	const getUsers = collection(getSchoolID, 'users');
+	const getSchoolID = doc(db, schlID, acadYR);
+	const getUsers = collection(db, schlID, 'data', 'users');
 	// user data
 	let userID = '',
 		userCL = '',
@@ -199,9 +201,6 @@
 		document.documentElement.setAttribute('theme', loclTM); // set selected theme on load
 
 		try {
-			const getSchoolID = doc(db, 'schools', '0303001');
-			progTX = 'Retrieving...';
-			const getUsers = collection(getSchoolID, 'users');
 			progTX = 'Connecting...';
 			await getDocs(getUsers);
 			console.log('Connected.');
@@ -465,7 +464,7 @@
 					with a larger screen or rotate your device to view the master table.
 				</p>
 			</div>
-			<div class="hidden md:flex lg:flex gap-2">
+			<div class="hidden md:flex lg:flex gap-3">
 				<div class="w-screen">
 					<DataTable
 						radio
@@ -534,8 +533,8 @@
 						<h6 class="underline">Section Information</h6>
 					</div>
 					<br />
-					<div class="flex flex-col w-full gap-4">
-						<div class="flex flex-col w-full lg:flex-row gap-2">
+					<div class="flex flex-col w-full gap-3">
+						<div class="flex flex-col w-full lg:flex-row gap-3">
 							<ComboBox
 								titleText="Academic Year"
 								placeholder="Subject academic year"
@@ -705,7 +704,7 @@
 				<h6 class="underline">Login Details</h6>
 			</div>
 			<br />
-			<div class="flex flex-col w-full gap-4">
+			<div class="flex flex-col w-full gap-3">
 				<TextInput labelText="Account ID" placeholder="System-generated account ID" readonly />
 				<TextInput labelText="Username" placeholder="System-generated username" readonly />
 				<PasswordInput
@@ -727,7 +726,7 @@
 				</div>
 				<br />
 				<div class="flex flex-col w-full">
-					<div class="flex flex-col w-full gap-4">
+					<div class="flex flex-col w-full gap-3">
 						<TextInput labelText="Last Name" placeholder="Your last name" readonly={!editAC} />
 						<TextInput labelText="First Name" placeholder="Your first name" readonly={!editAC} />
 						<TextInput labelText="Middle Name" placeholder="Your middle name" readonly={!editAC} />
@@ -743,7 +742,7 @@
 						/>
 					</div>
 					<br />
-					<div class="flex flex-col w-full lg:flex-row gap-4">
+					<div class="flex flex-col w-full lg:flex-row gap-3">
 						<TextInput
 							labelText="Student Contact Number"
 							placeholder="Your contact number"
@@ -756,7 +755,7 @@
 						/>
 					</div>
 					<br />
-					<div class="flex flex-col w-full gap-4">
+					<div class="flex flex-col w-full gap-3">
 						<TextInput
 							labelText="Mother's Name"
 							placeholder="Your mother's name"
@@ -782,7 +781,7 @@
 				</div>
 				<br />
 				<div class="flex flex-col w-full">
-					<div class="flex flex-col w-full gap-4">
+					<div class="flex flex-col w-full gap-3">
 						<TextInput
 							labelText="Last Name"
 							placeholder="Enter your last name"
@@ -820,7 +819,7 @@
 						/>
 					</div>
 					<br />
-					<div class="flex flex-col w-full gap-4">
+					<div class="flex flex-col w-full gap-3">
 						<TextInput
 							labelText="Contact Person"
 							placeholder="Enter your contact person's name"

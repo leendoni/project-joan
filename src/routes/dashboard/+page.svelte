@@ -3,13 +3,13 @@
 	// svelte
 	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
-	// components
+// components
 	import {
 		Button,
-		ComboBox,
 		Content,
 		Header,
 		HeaderUtilities,
+		InlineNotification,
 		Modal,
 		PasswordInput,
 		ProgressBar,
@@ -19,14 +19,14 @@
 		SideNavLink,
 		SideNavMenu,
 		TextArea,
-		TextInput
+		TextInput,
+		Tile
 	} from 'carbon-components-svelte';
 	// icons
 	import {
 		Asleep,
 		Book,
 		Box,
-		Bullhorn,
 		Calendar,
 		CalendarSettings,
 		Catalog,
@@ -35,24 +35,22 @@
 		ContainerSoftware,
 		Dashboard,
 		Debug,
+		Edit,
 		Education,
 		EventSchedule,
 		Events,
-		Finance,
 		GroupObjectsNew,
 		Information,
 		Logout,
 		Money,
 		Notebook,
 		NotebookReference,
-		Notification,
 		Partnership,
 		Report,
+		Save,
 		Settings,
 		SettingsAdjust,
 		Stethoscope,
-		UserAdmin,
-		UserSettings,
 		UserSponsor,
 		Wallet
 	} from 'carbon-icons-svelte';
@@ -60,11 +58,11 @@
 	// firebase
 	import { addDoc, collection, doc, getDocs, query, updateDoc, where } from 'firebase/firestore';
 	import { db } from '../../firebase';
-	// for password hashing
+// for password hashing
 	import bcrypt from 'bcryptjs';
 	// #endregion
 	// #region database values
-	let pageID = '/home';
+	let pageID = '/dashboard';
 	let dbConn = false;
 	// schoolyear data
 	let schlID = '0303001',
@@ -97,6 +95,16 @@
 		userCR = '',
 		userCN = 0,
 		userEC = 0;
+	// post data
+	let postID = '',
+		postBY = '',
+		postTP = '',
+		postCL = '',
+		postTT = '',
+		postDC = '',
+		postSD = '',
+		postED = '',
+		postAY = '';
 	// login data
 	let nputUN = '',
 		nputPW = '',
@@ -347,8 +355,8 @@
 	});
 </script>
 
-<Header company="Project" platformName="JOAN" href="/">
-	<div class="text-white hidden lg:flex">Home</div>
+<Header company="Project" platformName="JOAN" href="/home">
+	<div class="text-white hidden lg:flex">Dashboard</div>
 	<HeaderUtilities>
 		<div class="flex">
 			<div class="flex">
@@ -367,12 +375,6 @@
 					icon={Asleep}
 				/>
 				<Button
-					tooltipPosition="left"
-					iconDescription="Notifications"
-					kind="secondary"
-					icon={Notification}
-				/>
-				<Button
 					on:click={goLogin}
 					on:click={handleLogout}
 					tooltipPosition="left"
@@ -389,7 +391,7 @@
 	<SideNav bind:isOpen={sideBR} rail>
 		{#if loclCL === 'god'}
 			<SideNavItems>
-				<SideNavLink icon={Dashboard} href="/dashboard" text="Dashboard" />
+				<SideNavLink isSelected icon={Dashboard} href="/dashboard" text="Dashboard" />
 				<SideNavDivider />
 				<SideNavLink icon={Debug} href="/bugs" text="Reported Bugs" />
 				<SideNavDivider />
@@ -433,7 +435,7 @@
 			</SideNavItems>
 		{:else if loclCL === 'administrator'}
 			<SideNavItems>
-				<SideNavLink icon={Dashboard} href="/dashboard" text="Dashboard" />
+				<SideNavLink isSelected icon={Dashboard} href="/dashboard" text="Dashboard" />
 				<SideNavDivider />
 				<SideNavLink icon={Events} href="/administrator/users" text="User Management" />
 				<SideNavLink
@@ -441,11 +443,7 @@
 					href="/administrator/subjects"
 					text="Subject Management"
 				/>
-				<SideNavLink
-					icon={Categories}
-					href="/administrator/subjects"
-					text="Subject Management"
-				/>
+				<SideNavLink icon={Categories} href="/administrator/subjects" text="Subject Management" />
 				<SideNavLink
 					icon={CalendarSettings}
 					href="/administrator/schedules"
@@ -471,14 +469,14 @@
 			</SideNavItems>
 		{:else if loclCL === 'admission'}
 			<SideNavItems>
-				<SideNavLink icon={Dashboard} href="/dashboard" text="Dashboard" />
+				<SideNavLink isSelected icon={Dashboard} href="/dashboard" text="Dashboard" />
 				<SideNavDivider />
 				<SideNavLink icon={GroupObjectsNew} href="/academic/admission" text="Admissions" />
 				<SideNavLink icon={Notebook} href="/academic/subjects" text="Subjects" />
 			</SideNavItems>
 		{:else if loclCL === 'registrar'}
 			<SideNavItems>
-				<SideNavLink icon={Dashboard} href="/dashboard" text="Dashboard" />
+				<SideNavLink isSelected icon={Dashboard} href="/dashboard" text="Dashboard" />
 				<SideNavDivider />
 				<SideNavLink icon={Education} href="/academic/enrollment" text="Enrolments" />
 				<SideNavLink icon={Categories} href="/academic/sections" text="Sections" />
@@ -489,14 +487,14 @@
 			</SideNavItems>
 		{:else if loclCL === 'cashier'}
 			<SideNavItems>
-				<SideNavLink icon={Dashboard} href="/dashboard" text="Dashboard" />
+				<SideNavLink isSelected icon={Dashboard} href="/dashboard" text="Dashboard" />
 				<SideNavDivider />
 				<SideNavLink icon={Money} href="/finance/transact" text="Financial Transactions" />
 				<SideNavLink icon={Wallet} href="/finance/defaults" text="Financial Settings" />
 			</SideNavItems>
 		{:else if loclCL === 'guidance'}
 			<SideNavItems>
-				<SideNavLink icon={Dashboard} href="/dashboard" text="Dashboard" />
+				<SideNavLink isSelected icon={Dashboard} href="/dashboard" text="Dashboard" />
 				<SideNavDivider />
 				<SideNavLink icon={UserSponsor} href="/guidance/records" text="Guidance Records" />
 				<SideNavLink icon={Partnership} href="/guidance/defaults" text="Guidance Settings" />
@@ -505,7 +503,7 @@
 			</SideNavItems>
 		{:else if loclCL === 'faculty'}
 			<SideNavItems>
-				<SideNavLink icon={Dashboard} href="/dashboard" text="Dashboard" />
+				<SideNavLink isSelected icon={Dashboard} href="/dashboard" text="Dashboard" />
 				<SideNavDivider />
 				<SideNavLink icon={Notebook} href="/academic/subjects" text="Subjects" />
 				<SideNavLink icon={NotebookReference} href="/academic/gradebook" text="Gradebook" />
@@ -514,19 +512,19 @@
 			</SideNavItems>
 		{:else if loclCL === 'librarian'}
 			<SideNavItems>
-				<SideNavLink icon={Dashboard} href="/dashboard" text="Dashboard" />
+				<SideNavLink isSelected icon={Dashboard} href="/dashboard" text="Dashboard" />
 				<SideNavDivider />
 				<SideNavLink icon={Book} href="/library" text="Library Management" />
 			</SideNavItems>
 		{:else if loclCL === 'nurse'}
 			<SideNavItems>
-				<SideNavLink icon={Dashboard} href="/dashboard" text="Dashboard" />
+				<SideNavLink isSelected icon={Dashboard} href="/dashboard" text="Dashboard" />
 				<SideNavDivider />
 				<SideNavLink icon={Stethoscope} href="/health" text="Health Records" />
 			</SideNavItems>
 		{:else if loclCL === 'student'}
 			<SideNavItems>
-				<SideNavLink icon={Dashboard} href="/dashboard" text="Dashboard" />
+				<SideNavLink isSelected icon={Dashboard} href="/dashboard" text="Dashboard" />
 				<SideNavDivider />
 				<SideNavLink icon={Calendar} href="/student/schedules" text="Class Schedules" />
 				<SideNavLink icon={Catalog} href="/student/grades" text="Subject Grades" />
@@ -540,17 +538,115 @@
 		{/if}
 	</SideNav>
 
-	<div class="flex flex-col h-screen justify-center pl-10">
-		<Content class="self-center">
-			<h1>Select a module.</h1>
-			<p>
-				Welcome, <strong>{loclFN}</strong>. Pick a module from the sidebar to get started.
-			</p>
-			<br />
-			<p class="italic text-sm">
-				If no module appears, wait 1-3 days for your System Administrator to designate a user class
-				for your account.
-			</p>
+	<div class="flex flex-col h-screen pl-10 pt-10">
+		<Content>
+			<div class="flex flex-col gap-3">
+				<div class="flex flex-col gap-3 lg:flex-row">
+					<!-- notifs -->
+					<div class="w-full lg:w-1/3">
+						<Tile class="rounded-xl h-80">
+							<div>
+								<h6>Notifications</h6>
+							</div>
+							<br />
+							<div class="overflow-y-auto w-full h-60">
+								{#if loclCL === 'student'}
+									<InlineNotification
+										hideCloseButton
+										kind="warning"
+										title="Developers' Notice:"
+										subtitle="Some features might not work as expected. Expect bugs to occur. If you encounter one, use the 'Report a Bug' feature."
+									/>
+								{:else}
+									<InlineNotification
+										hideCloseButton
+										kind="warning"
+										title="Developers' Notice:"
+										subtitle="Some features might not work as expected. Expect bugs to occur. If you encounter one, use the 'Report a Bug' feature."
+									/>
+								{/if}
+							</div>
+						</Tile>
+					</div>
+					<!-- acc info -->
+					<div class="w-full lg:w-1/3">
+						<Tile class="rounded-xl h-80">
+							<div>
+								<h6>Account Information</h6>
+							</div>
+							<br />
+							<div class="flex flex-col w-full lg:flex-row gap-3">Content goes here</div>
+							<br />
+						</Tile>
+					</div>
+					<!-- change pass -->
+					<div class="w-full lg:w-1/3">
+						<Tile class="rounded-xl h-80">
+							<div>
+								<h6>Credential Manager</h6>
+							</div>
+							<br />
+							<div class="flex flex-col w-full lg:flex-row gap-3">
+								<div class="flex flex-col w-full gap-3">
+									<PasswordInput
+										bind:value={userPW}
+										size="sm"
+										labelText="Current Password"
+										placeholder="Enter password"
+										tooltipPosition="left"
+									/>
+									<PasswordInput
+										bind:value={userPW}
+										size="field"
+										labelText="New Password"
+										placeholder="Enter password"
+										tooltipPosition="left"
+									/>
+									<PasswordInput
+										bind:value={userPW}
+										size="field"
+										labelText="Confirm Password"
+										placeholder="Enter password"
+										tooltipPosition="left"
+									/>
+									<div class="flex flex-row justify-end">
+										<Button size="sm" kind="ghost" icon={Edit}>Change</Button>
+										<Button size="sm" kind="tertiary" icon={Save}>Update</Button>
+									</div>
+								</div>
+							</div>
+							<br />
+						</Tile>
+					</div>
+				</div>
+				<!-- campus bulletin -->
+				<div class="w-full">
+					<Tile class="rounded-xl h-80">
+						<div>
+							<h6>Campus Bulletin</h6>
+						</div>
+						<div>
+							<br />
+							<div class="overflow-x-auto whitespace-nowrap w-full">
+								<!-- announcement block -->
+								<div class="inline-flex flex-col p-3 gap-3 w-full lg:w-1/4">
+									<div class="h-2 rounded-lg bg-red-600" />
+									<div class="flex flex-col w-full">
+										<p class="italic text-sm"><strong>Announcement</strong></p>
+										<p class="text-lg whitespace-normal">Title of post goes here</p>
+										<p class="italic text-xs">Subtitle goes here</p>
+									</div>
+									<hr />
+									<p class="inline-flex flex-col text-sm whitespace-normal">
+										Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla quis orci eget
+										massa vestibulum rhoncus. Suspendisse eget ex nec urna dapibus ultrices.
+									</p>
+								</div>
+							</div>
+						</div>
+					</Tile>
+				</div>
+			</div>
 		</Content>
 	</div>
 {:else}

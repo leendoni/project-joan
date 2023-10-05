@@ -39,9 +39,13 @@
 	// #region database values
 	let pageID = '/login';
 	let dbConn = false;
+	// schoolyear data
+	let schlID = '0303001',
+		acadYR = '2023-2024',
+		acadSM = 'Second';
 	// database values
-	const getSchoolID = doc(db, 'schools', '0303001');
-	const getUsers = collection(getSchoolID, 'users');
+	const getSchoolID = doc(db, schlID, acadYR);
+	const getUsers = collection(db, schlID, 'data', 'users');
 	// local stored
 	let loclID = '',
 		loclCL = '',
@@ -156,7 +160,7 @@
 				aclgDT: formattedDate
 			};
 
-			await addDoc(collection(db, 'schools', '0303001', 'access'), data);
+			await addDoc(collection(db, schlID, acadYR, 'access'), data);
 		} catch (error) {
 			console.error('Failed to log access:', error);
 		}
@@ -240,7 +244,7 @@
 		}
 
 		const docId = snapshot.docs[0].id;
-		const docRef = doc(db, 'schools', '0303001', 'users', docId);
+		const docRef = doc(db, acadYR, '0303001', 'users', docId);
 
 		try {
 			await updateDoc(docRef, updatedData);
@@ -257,9 +261,7 @@
 		document.documentElement.setAttribute('theme', loclTM); // set selected theme on load
 
 		try {
-			const getSchoolID = doc(db, 'schools', '0303001');
 			progTX = 'Retrieving...';
-			const getUsers = collection(getSchoolID, 'users');
 			progTX = 'Connecting...';
 			await getDocs(getUsers);
 			console.log('Connected.');
@@ -489,7 +491,7 @@
 					>
 				</div>
 			</div>
-			<div class="flex flex-col gap-2 lg:flex-row">
+			<div class="flex flex-col gap-3 lg:flex-row">
 				<TextInput
 					bind:value={userLN}
 					readonly

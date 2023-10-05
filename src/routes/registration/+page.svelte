@@ -31,12 +31,13 @@
 	// #region database values
 	let pageID = '/registration/employee';
 	let dbConn = false;
-	// database values
-	const getSchoolID = doc(db, 'schools', '0303001');
-	const getUsers = collection(getSchoolID, 'users');
 	// schoolyear data
-	let acadYR = '',
-		acadSM = '';
+	let schlID = '0303001',
+		acadYR = '2023-2024',
+		acadSM = 'Second';
+	// database values
+	const getSchoolID = doc(db, schlID, acadYR);
+	const getUsers = collection(db, schlID, 'data', 'users');
 	// user data
 	let userID = '',
 		userCL = '',
@@ -204,7 +205,7 @@
 	}
 
 	async function checkUserLR(value) {
-		const getSchoolID = doc(db, 'schools', '0303001');
+		const getSchoolID = doc(db, acadYR, '0303001');
 		const getUsers = collection(getSchoolID, 'users');
 		const q = query(getUsers, where('userLR', '==', value));
 		const snapshot = await getDocs(q);
@@ -292,7 +293,7 @@
 
 	async function uploadUser(data) {
 		try {
-			const docRef = await addDoc(collection(db, 'schools', '0303001', 'users'), data);
+			const docRef = await addDoc(collection(db, schlID, 'data', 'users'), data);
 			console.log('Document written with ID: ', docRef.id);
 			return docRef.id; // you can return the ID to further use it if needed
 		} catch (e) {
@@ -307,9 +308,6 @@
 		document.documentElement.setAttribute('theme', loclTM); // set selected theme on load
 
 		try {
-			const getSchoolID = doc(db, 'schools', '0303001');
-			progTX = 'Retrieving...';
-			const getUsers = collection(getSchoolID, 'users');
 			progTX = 'Connecting...';
 			await getDocs(getUsers);
 			console.log('Connected.');
@@ -377,7 +375,7 @@
 					<h6 class="underline">Basic Information</h6>
 				</div>
 				<br />
-				<div class="flex flex-col w-full lg:flex-row gap-2">
+				<div class="flex flex-col w-full lg:flex-row gap-3">
 					<ComboBox
 						titleText="Type of Government ID"
 						placeholder="Select ID type"
@@ -405,7 +403,7 @@
 				</div>
 				<br />
 				<div class="flex flex-col w-full">
-					<div class="flex flex-col w-full lg:flex-row gap-2">
+					<div class="flex flex-col w-full lg:flex-row gap-3">
 						<TextInput
 							bind:value={userLN}
 							labelText="Last Name"
@@ -428,7 +426,7 @@
 						/>
 					</div>
 					<br />
-					<div class="flex flex-col w-full lg:flex-row gap-2">
+					<div class="flex flex-col w-full lg:flex-row gap-3">
 						<ComboBox
 							bind:value={userSX}
 							titleText="Gender"
@@ -446,7 +444,7 @@
 						/>
 					</div>
 					<br />
-					<div class="flex flex-col w-full lg:flex-row gap-2">
+					<div class="flex flex-col w-full lg:flex-row gap-3">
 						<TextInput
 							bind:value={userCP}
 							labelText="Emergency Contact Person"
@@ -469,7 +467,7 @@
 					<h6 class="underline">Account Information</h6>
 				</div>
 				<br />
-				<div class="flex flex-col w-full lg:flex-row gap-2">
+				<div class="flex flex-col w-full lg:flex-row gap-3">
 					<TextInput
 						bind:value={userID}
 						labelText="Account ID"
@@ -580,7 +578,6 @@
 	bind:open={studApplyMD00}
 	on:close={goLogin}
 	modalHeading="Application Received!"
-	size="xs"
 	passiveModal
 >
 	<div class="flex flex-col content-center">

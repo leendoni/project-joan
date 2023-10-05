@@ -25,8 +25,6 @@
 		TextInput,
 		Toolbar,
 		ToolbarContent,
-		ToolbarMenu,
-		ToolbarMenuItem,
 		ToolbarSearch
 	} from 'carbon-components-svelte';
 	// icons
@@ -34,57 +32,76 @@
 		Asleep,
 		Book,
 		Box,
-		Bullhorn,
 		Calendar,
+		CalendarSettings,
 		Catalog,
+		CatalogPublish,
 		Categories,
 		ContainerSoftware,
+		Dashboard,
 		Debug,
 		Edit,
 		Education,
 		EventSchedule,
-		Filter,
-		Finance,
+		Events,
 		GroupObjectsNew,
-		Home,
 		Information,
 		Logout,
 		Money,
 		Notebook,
 		NotebookReference,
-		Notification,
 		Partnership,
 		Recycle,
+		Report,
 		Save,
 		Settings,
 		SettingsAdjust,
 		Stethoscope,
 		TrashCan,
-		UserSettings,
 		UserSponsor,
 		Wallet
 	} from 'carbon-icons-svelte';
 	// pictograms
 	// firebase
-	import { addDoc, collection, doc, getDocs } from 'firebase/firestore';
+	import { addDoc, collection, doc, getDocs, query, updateDoc, where } from 'firebase/firestore';
 	import { db } from '../../../firebase';
 	// for password hashing
+	import bcrypt from 'bcryptjs';
 	// #endregion
 	// #region database values
 	let pageID = '/administrator/users';
 	let dbConn = false;
+	// schoolyear data
+	let schlID = '0303001',
+		acadYR = '2023-2024',
+		acadSM = 'Second';
 	// database values
-	const getSchoolID = doc(db, 'schools', '0303001');
-	const getUsers = collection(getSchoolID, 'users');
+	const getSchoolID = doc(db, schlID, acadYR);
+	const getUsers = collection(db, schlID, 'data', 'users');
 	// user data
 	let userID = '',
 		userCL = '',
 		userST = '',
 		userUN = '',
 		userPW = '',
+		userAY = '',
+		userSM = '',
+		userYR = '',
+		userSC = '',
+		userLR = '',
 		userLN = '',
 		userFN = '',
-		userMN = '';
+		userMN = '',
+		userSF = '',
+		userSX = '',
+		userAD = '',
+		userMA = '',
+		userFA = '',
+		userGA = '',
+		userCP = '',
+		userCR = '',
+		userCN = 0,
+		userEC = 0;
 	// login data
 	let nputUN = '',
 		nputPW = '',
@@ -188,7 +205,7 @@
 		{ key: 'userLN', value: 'Last Name' },
 		{ key: 'userFN', value: 'First Name' },
 		{ key: 'userMN', value: 'Middle Name' },
-		{ key: 'userON', value: 'Status' }
+		{ key: 'userST', value: 'Status' }
 	];
 
 	let userRow = [];
@@ -196,16 +213,149 @@
 	let userPage = 1;
 
 	let selectedRowIds = []; // get toggled radio
-	
+
+	async function getUserData() {
+		// const q = query(getUsers, where('userCL', '==', 'student'));
+		const q = query(getUsers);
+		const snapshot = await getDocs(q);
+		const data = snapshot.docs.map((doc) => doc.data());
+		return data;
+	}
+
+	async function loadUserData() {
+		const data = await getUserData();
+		userRow = data.map((item) => ({
+			id: item.userID,
+			userID: item.userID,
+			userCL: item.userCL,
+			userAY: item.userAY,
+			userSM: item.userSM,
+			userLR: item.userLR,
+			userLN: item.userLN,
+			userFN: item.userFN,
+			userMN: item.userMN,
+			userSF: item.userSF,
+			userGD: item.userGD,
+			userCN: item.userCN,
+			userAD: item.userAD,
+			userMA: item.userMA,
+			userFA: item.userFA,
+			userGA: item.userGA,
+			userCP: item.userCP,
+			userCR: item.userCR,
+			userEC: item.userEC,
+			userST: item.userST
+		}));
+	}
+
+	async function fetchSelected(referenceCode) {
+		const q = query(getUsers, where('userID', '==', referenceCode));
+		const snapshot = await getDocs(q);
+
+		if (snapshot.empty) {
+			// No records found for the provided reference code
+			console.log('fetchSelected: Empty records.');
+			return null;
+		}
+
+		return snapshot.docs[0].data();
+	}
+
+	async function handleSelected() {
+		const data = await fetchSelected(selectedRowIds.toString()); // convert to string or it wont load
+
+		if (data) {
+			userID = data.userID;
+			userCL = data.userCL;
+			userAY = data.userAY;
+			userSM = data.userSM;
+			userLR = data.userLR;
+			userLN = data.userLN;
+			userFN = data.userFN;
+			userMN = data.userMN;
+			userSF = data.userSF;
+			userSX = data.userSX;
+			userCN = data.userCN;
+			userAD = data.userAD;
+			userMA = data.userMA;
+			userFA = data.userFA;
+			userGA = data.userGA;
+			userCP = data.userCP;
+			userCR = data.userCR;
+			userEC = data.userEC;
+			userST = data.userST;
+		} else {
+			// clear fields
+			userLN = '';
+			userFN = '';
+			userMN = '';
+		}
+
+		console.log(userID);
+	}
+
+	async function updateSelected() {
+		const updatedData = {
+			userAY: userAY,
+			userCL: userCL,
+			userSM: userSM,
+			userLR: userLR,
+			userLN: userLN,
+			userFN: userFN,
+			userMN: userMN,
+			userSF: userSF,
+			userSX: userSX,
+			userCN: userCN,
+			userAD: userAD,
+			userMA: userMA,
+			userFA: userFA,
+			userGA: userGA,
+			userCP: userCP,
+			userCR: userCR,
+			userEC: userEC,
+			userST: userST
+		};
+
+		const q = query(getUsers, where('userID', '==', selectedRowIds.toString()));
+		const snapshot = await getDocs(q);
+
+		if (snapshot.empty) {
+			console.error('No records found for the selected reference code.');
+			return;
+		}
+
+		const docId = snapshot.docs[0].id;
+		const docRef = doc(db, schlID, 'data', 'users', docId);
+
+		try {
+			await updateDoc(docRef, updatedData);
+			console.log('Successfully updated');
+			loadUserData();
+			edit = false;
+		} catch (error) {
+			edit = false;
+			console.error('Error updating document:', error);
+		}
+	}
+
+	function makeUserUN() {
+		const trimLR = userLR.slice(-6); // Get the last 6 characters of the LRN
+		userUN = `${userLN}.${trimLR}@csjd.project-joan.cloud`;
+	}
+
+	async function makeUserPW() {
+		userPW = userUN.slice(0, -24);
+		const salt = await bcrypt.genSalt(10); // Generate a salt
+		const hashedPassword = await bcrypt.hash(userPW, salt); // Hash the password
+		return hashedPassword;
+	}
+
 	// #endregion
 	onMount(async () => {
 		loclTM = localStorage.getItem('loclTM'); // get stored theme on load
 		document.documentElement.setAttribute('theme', loclTM); // set selected theme on load
 
 		try {
-			const getSchoolID = doc(db, 'schools', '0303001');
-			progTX = 'Retrieving...';
-			const getUsers = collection(getSchoolID, 'users');
 			progTX = 'Connecting...';
 			await getDocs(getUsers);
 			console.log('Connected.');
@@ -222,6 +372,8 @@
 			console.error('Failed. :', error);
 			dbConn = false;
 		}
+
+		loadUserData();
 	});
 </script>
 
@@ -245,12 +397,6 @@
 					icon={Asleep}
 				/>
 				<Button
-					tooltipPosition="left"
-					iconDescription="Notifications"
-					kind="secondary"
-					icon={Notification}
-				/>
-				<Button
 					on:click={goHome}
 					tooltipPosition="left"
 					iconDescription="Logout"
@@ -266,20 +412,12 @@
 	<SideNav bind:isOpen={sideBR} rail>
 		{#if loclCL === 'god'}
 			<SideNavItems>
-				<SideNavLink
-					icon={UserSettings}
-					on:click={() => (accountSTMD00 = true)}
-					text="Account Information"
-				/>
+				<SideNavLink icon={Dashboard} href="/dashboard" text="Dashboard" />
 				<SideNavDivider />
 				<SideNavLink icon={Debug} href="/bugs" text="Reported Bugs" />
 				<SideNavDivider />
-				<SideNavLink icon={Bullhorn} href="/bulletin" text="Campus Bulletin" />
-				<SideNavLink icon={EventSchedule} href="/schedules" text="Class Schedules" />
-				<SideNavLink icon={Finance} href="/school" text="School Information" />
-				<SideNavDivider />
-				<SideNavMenu icon={SettingsAdjust} text="Management Modules">
-					<SideNavLink href="/administrator/users" text="User Management" />
+				<SideNavMenu expanded icon={SettingsAdjust} text="Management Modules">
+					<SideNavLink isSelected href="/administrator/users" text="User Management" />
 					<SideNavLink href="/administrator/sections" text="Section Management" />
 					<SideNavLink href="/administrator/subjects" text="Subject Management" />
 					<SideNavLink href="/administrator/schedules" text="Schedule Management" />
@@ -287,7 +425,7 @@
 				</SideNavMenu>
 				<SideNavMenu icon={Education} text="Academic Modules">
 					<SideNavLink href="/academic/admission" text="Admissions" />
-					<SideNavLink href="/academic/enrollment" text="Enrollments" />
+					<SideNavLink href="/academic/enrollment" text="Enrolments" />
 					<SideNavLink href="/academic/sections" text="Sections" />
 					<SideNavLink href="/academic/subjects" text="Subjects" />
 					<SideNavLink href="/academic/gradebook" text="Gradebook" />
@@ -305,172 +443,116 @@
 				</SideNavMenu>
 				<SideNavDivider />
 				<SideNavLink icon={Information} href="/about" text="System Information" />
+				<SideNavLink icon={Report} href="/reports" text="System Reports" />
 				<SideNavLink icon={Settings} href="/defaults" text="System Settings" />
 				<SideNavDivider />
-				<SideNavLink icon={Box} href="/archives" text="System Archives" />
+				<SideNavMenu icon={Box} text="Archives">
+					<SideNavLink href="/archives/system" text="System Archives" />
+					<SideNavLink href="/archives/student" text="Student Archives" />
+					<SideNavLink href="/archives/employee" text="Employee Archives" />
+				</SideNavMenu>
+				<SideNavDivider />
+				<SideNavLink icon={EventSchedule} href="/schedules" text="Class Schedules" />
 			</SideNavItems>
 		{:else if loclCL === 'administrator'}
 			<SideNavItems>
-				<SideNavItems>
-					<SideNavLink
-						icon={UserSettings}
-						on:click={() => (accountSTMD00 = true)}
-						text="Account Information"
-					/>
-					<SideNavDivider />
-					<SideNavLink icon={Bullhorn} href="/bulletin" text="Campus Bulletin" />
-					<SideNavLink icon={EventSchedule} href="/schedules" text="Class Schedules" />
-					<SideNavLink icon={Finance} href="/school" text="School Information" />
-					<SideNavDivider />
-					<SideNavMenu icon={SettingsAdjust} text="Management Modules">
-						<SideNavLink href="/administrator/users" text="User Management" />
-						<SideNavLink href="/administrator/subjects" text="Subject Management" />
-						<SideNavLink href="/administrator/schedules" text="Schedule Management" />
-						<SideNavLink href="/administrator/bulletin" text="Bulletin Management" />
-					</SideNavMenu>
-					<SideNavMenu icon={Education} text="Academic Modules">
-						<SideNavLink href="/academic/admission" text="Admissions" />
-						<SideNavLink href="/academic/enrollment" text="Enrollments" />
-						<SideNavLink href="/academic/sections" text="Sections" />
-						<SideNavLink href="/academic/subjects" text="Subjects" />
-						<SideNavLink href="/academic/gradebook" text="Gradebook" />
-						<hr />
-						<SideNavLink href="/guidance/records" text="Guidance Records" />
-						<SideNavLink href="/guidance/defaults" text="Guidance Settings" />
-					</SideNavMenu>
-					<SideNavMenu icon={Money} text="Financial Modules">
-						<SideNavLink href="/finance/transact" text="Financial Transactions" />
-						<SideNavLink href="/finance/defaults" text="Financial Settings" />
-					</SideNavMenu>
-					<SideNavMenu icon={ContainerSoftware} text="Miscellaneous Modules">
-						<SideNavLink href="/library" text="Library Management" />
-						<SideNavLink href="/health" text="Health Records" />
-					</SideNavMenu>
-					<SideNavDivider />
-					<SideNavLink icon={Information} href="/about" text="System Information" />
-					<SideNavLink icon={Settings} href="/defaults" text="System Settings" />
-					<SideNavDivider />
-					<SideNavLink icon={Box} href="/archives" text="System Archives" />
-				</SideNavItems>
+				<SideNavLink icon={Dashboard} href="/dashboard" text="Dashboard" />
+				<SideNavDivider />
+				<SideNavLink isSelected icon={Events} href="/administrator/users" text="User Management" />
+				<SideNavLink
+					icon={NotebookReference}
+					href="/administrator/subjects"
+					text="Subject Management"
+				/>
+				<SideNavLink icon={Categories} href="/administrator/subjects" text="Subject Management" />
+				<SideNavLink
+					icon={CalendarSettings}
+					href="/administrator/schedules"
+					text="Schedule Management"
+				/>
+				<SideNavLink
+					icon={CatalogPublish}
+					href="/administrator/bulletin"
+					text="Bulletin Management"
+				/>
+				<SideNavDivider />
+				<SideNavLink icon={Information} href="/about" text="System Information" />
+				<SideNavLink icon={Report} href="/reports" text="System Reports" />
+				<SideNavLink icon={Settings} href="/defaults" text="System Settings" />
+				<SideNavDivider />
+				<SideNavLink icon={EventSchedule} href="/schedules" text="Class Schedules" />
+				<SideNavDivider />
+				<SideNavMenu icon={Box} text="Archives">
+					<SideNavLink href="/archives/system" text="System Archives" />
+					<SideNavLink href="/archives/student" text="Student Archives" />
+					<SideNavLink href="/archives/employee" text="Employee Archives" />
+				</SideNavMenu>
 			</SideNavItems>
 		{:else if loclCL === 'admission'}
 			<SideNavItems>
-				<SideNavLink
-					icon={UserSettings}
-					on:click={() => (accountSTMD00 = true)}
-					text="Account Information"
-				/>
-				<SideNavDivider />
-				<SideNavLink icon={Bullhorn} href="/bulletin" text="Campus Bulletin" />
-				<SideNavLink icon={EventSchedule} href="/schedules" text="Class Schedules" />
-				<SideNavLink icon={Finance} href="/school" text="School Information" />
+				<SideNavLink icon={Dashboard} href="/dashboard" text="Dashboard" />
 				<SideNavDivider />
 				<SideNavLink icon={GroupObjectsNew} href="/academic/admission" text="Admissions" />
 				<SideNavLink icon={Notebook} href="/academic/subjects" text="Subjects" />
 			</SideNavItems>
 		{:else if loclCL === 'registrar'}
 			<SideNavItems>
-				<SideNavLink
-					icon={UserSettings}
-					on:click={() => (accountSTMD00 = true)}
-					text="Account Information"
-				/>
+				<SideNavLink icon={Dashboard} href="/dashboard" text="Dashboard" />
 				<SideNavDivider />
-				<SideNavLink icon={Bullhorn} href="/bulletin" text="Campus Bulletin" />
-				<SideNavLink icon={EventSchedule} href="/schedules" text="Class Schedules" />
-				<SideNavLink icon={Finance} href="/school" text="School Information" />
-				<SideNavDivider />
-				<SideNavLink icon={Education} href="/academic/enrollment" text="Enrollments" />
+				<SideNavLink icon={Education} href="/academic/enrollment" text="Enrolments" />
 				<SideNavLink icon={Categories} href="/academic/sections" text="Sections" />
 				<SideNavLink icon={Notebook} href="/academic/subjects" text="Subjects" />
 				<SideNavLink icon={NotebookReference} href="/academic/gradebook" text="Gradebook" />
+				<SideNavDivider />
+				<SideNavLink icon={Box} href="/archives/student" text="Student Archives" />
 			</SideNavItems>
 		{:else if loclCL === 'cashier'}
 			<SideNavItems>
-				<SideNavLink
-					icon={UserSettings}
-					on:click={() => (accountSTMD00 = true)}
-					text="Account Information"
-				/>
-				<SideNavDivider />
-				<SideNavLink icon={Bullhorn} href="/bulletin" text="Campus Bulletin" />
-				<SideNavLink icon={EventSchedule} href="/schedules" text="Class Schedules" />
-				<SideNavLink icon={Finance} href="/school" text="School Information" />
+				<SideNavLink icon={Dashboard} href="/dashboard" text="Dashboard" />
 				<SideNavDivider />
 				<SideNavLink icon={Money} href="/finance/transact" text="Financial Transactions" />
 				<SideNavLink icon={Wallet} href="/finance/defaults" text="Financial Settings" />
 			</SideNavItems>
 		{:else if loclCL === 'guidance'}
 			<SideNavItems>
-				<SideNavLink
-					icon={UserSettings}
-					on:click={() => (accountSTMD00 = true)}
-					text="Account Information"
-				/>
-				<SideNavDivider />
-				<SideNavLink icon={Bullhorn} href="/bulletin" text="Campus Bulletin" />
-				<SideNavLink icon={EventSchedule} href="/schedules" text="Class Schedules" />
-				<SideNavLink icon={Finance} href="/school" text="School Information" />
+				<SideNavLink icon={Dashboard} href="/dashboard" text="Dashboard" />
 				<SideNavDivider />
 				<SideNavLink icon={UserSponsor} href="/guidance/records" text="Guidance Records" />
 				<SideNavLink icon={Partnership} href="/guidance/defaults" text="Guidance Settings" />
+				<SideNavDivider />
+				<SideNavLink icon={EventSchedule} href="/schedules" text="Class Schedules" />
 			</SideNavItems>
 		{:else if loclCL === 'faculty'}
 			<SideNavItems>
-				<SideNavLink
-					icon={UserSettings}
-					on:click={() => (accountSTMD00 = true)}
-					text="Account Information"
-				/>
-				<SideNavDivider />
-				<SideNavLink icon={Bullhorn} href="/bulletin" text="Campus Bulletin" />
-				<SideNavLink icon={EventSchedule} href="/schedules" text="Class Schedules" />
-				<SideNavLink icon={Finance} href="/school" text="School Information" />
+				<SideNavLink icon={Dashboard} href="/dashboard" text="Dashboard" />
 				<SideNavDivider />
 				<SideNavLink icon={Notebook} href="/academic/subjects" text="Subjects" />
 				<SideNavLink icon={NotebookReference} href="/academic/gradebook" text="Gradebook" />
+				<SideNavDivider />
+				<SideNavLink icon={EventSchedule} href="/schedules" text="Class Schedules" />
 			</SideNavItems>
 		{:else if loclCL === 'librarian'}
 			<SideNavItems>
-				<SideNavLink
-					icon={UserSettings}
-					on:click={() => (accountSTMD00 = true)}
-					text="Account Information"
-				/>
-				<SideNavDivider />
-				<SideNavLink icon={Bullhorn} href="/bulletin" text="Campus Bulletin" />
-				<SideNavLink icon={Finance} href="/school" text="School Information" />
+				<SideNavLink icon={Dashboard} href="/dashboard" text="Dashboard" />
 				<SideNavDivider />
 				<SideNavLink icon={Book} href="/library" text="Library Management" />
 			</SideNavItems>
 		{:else if loclCL === 'nurse'}
 			<SideNavItems>
-				<SideNavLink
-					icon={UserSettings}
-					on:click={() => (accountSTMD00 = true)}
-					text="Account Information"
-				/>
-				<SideNavDivider />
-				<SideNavLink icon={Bullhorn} href="/bulletin" text="Campus Bulletin" />
-				<SideNavLink icon={Finance} href="/school" text="School Information" />
+				<SideNavLink icon={Dashboard} href="/dashboard" text="Dashboard" />
 				<SideNavDivider />
 				<SideNavLink icon={Stethoscope} href="/health" text="Health Records" />
 			</SideNavItems>
 		{:else if loclCL === 'student'}
 			<SideNavItems>
-				<SideNavLink
-					icon={UserSettings}
-					on:click={() => (accountSTMD00 = true)}
-					text="Account Information"
-				/>
-				<SideNavDivider />
-				<SideNavLink icon={Bullhorn} href="/bulletin" text="Campus Bulletin" />
-				<SideNavLink icon={Finance} href="/school" text="School Information" />
+				<SideNavLink icon={Dashboard} href="/dashboard" text="Dashboard" />
 				<SideNavDivider />
 				<SideNavLink icon={Calendar} href="/student/schedules" text="Class Schedules" />
 				<SideNavLink icon={Catalog} href="/student/grades" text="Subject Grades" />
 				<SideNavLink icon={Money} href="/student/transactions" text="Balance & Transactions" />
 			</SideNavItems>
+		{:else if loclCL === 'employee'}
+			<SideNavItems />
 		{:else}
 			<!-- return to login if no stored class -->
 			{goto('/login')}
@@ -485,9 +567,11 @@
 					with a larger screen or rotate your device to view the master table.
 				</p>
 			</div>
-			<div class="hidden md:flex lg:flex gap-2">
+			<div class="hidden md:flex lg:flex gap-3">
 				<div class="w-screen">
 					<DataTable
+						bind:selectedRowIds
+						on:click:row--select={handleSelected}
 						radio
 						zebra
 						sortable
@@ -496,45 +580,49 @@
 						rows={userRow}
 						page={userPage}
 						pageSize={userSize}
-						bind:selectedRowIds
 					>
 						<Toolbar>
 							<ToolbarContent>
 								<ToolbarSearch shouldFilterRows />
 								<Button
+									on:click={loadUserData}
 									kind="ghost"
 									icon={Recycle}
 									iconDescription="Reload"
 									tooltipPosition="left"
 								/>
-								<ToolbarMenu icon={Filter} iconDescription="Filter">
-									<ToolbarMenuItem>Students Only</ToolbarMenuItem>
-									<ToolbarMenuItem>Employees Only</ToolbarMenuItem>
-								</ToolbarMenu>
 								<Button
+									on:click={() => (edit = true)}
+									disabled={edit}
 									kind="tertiary"
 									icon={Edit}
 									iconDescription="Edit Selected"
 									tooltipPosition="left"
 								/>
 								<Button
+									disabled={!edit}
+									on:click={updateSelected}
 									kind="primary"
 									icon={Save}
 									iconDescription="Save Changes"
 									tooltipPosition="left"
-									bind:disabled={edit}
 								/>
-								<Button
+								<!-- <Button
+									disabled={!edit}
 									kind="danger"
 									icon={TrashCan}
 									iconDescription="Delete Selected"
 									tooltipPosition="left"
-									bind:disabled={edit}
-								/>
+								/> -->
 							</ToolbarContent>
 						</Toolbar>
 					</DataTable>
-					<Pagination bind:pageSize={userSize} bind:page={userPage} totalItems={userRow.length} pageSizeInputDisabled />
+					<Pagination
+						bind:pageSize={userSize}
+						bind:page={userPage}
+						totalItems={userRow.length}
+						pageSizeInputDisabled
+					/>
 					<!-- <Pagination {rows} /> -->
 				</div>
 			</div>
@@ -547,8 +635,9 @@
 						<h6 class="underline">Academic Information</h6>
 					</div>
 					<br />
-					<div class="flex flex-col w-full lg:flex-row gap-2">
+					<div class="flex flex-col w-full lg:flex-row gap-3">
 						<ComboBox
+							bind:value={userYR}
 							titleText="Academic Year"
 							placeholder="Current academic year"
 							items={[
@@ -581,6 +670,7 @@
 							disabled={!edit}
 						/>
 						<ComboBox
+							bind:value={userSM}
 							titleText="Semester"
 							placeholder="Current semester"
 							items={[
@@ -590,6 +680,7 @@
 							disabled={!edit}
 						/>
 						<TextInput
+							bind:value={userLR}
 							labelText="Learner's Reference Number"
 							placeholder="Enter your LRN"
 							readonly={!edit}
@@ -606,67 +697,82 @@
 						</div>
 						<br />
 						<div class="flex flex-col w-full">
-							<div class="flex flex-col w-full lg:flex-row gap-2">
+							<div class="flex flex-col w-full lg:flex-row gap-3">
 								<TextInput
+									bind:value={userLN}
 									labelText="Last Name"
 									placeholder="Enter your last name"
-									readonly={!edit}
+									readonly
 								/>
 								<TextInput
+									bind:value={userFN}
 									labelText="First Name"
 									placeholder="Enter your first name"
-									readonly={!edit}
+									readonly
 								/>
 								<TextInput
+									bind:value={userMN}
 									labelText="Middle Name"
 									placeholder="Enter your middle name"
-									readonly={!edit}
+									readonly
 								/>
 								<TextInput
+									bind:value={userSF}
 									labelText="Suffix (if any)"
 									placeholder="Sr., Jr., III., etc."
-									readonly={!edit}
+									readonly
 								/>
 							</div>
 							<br />
-							<div class="flex flex-col w-full lg:flex-row gap-2">
-								<TextInput labelText="Student Gender" placeholder="Gender" readonly={!edit} />
+							<div class="flex flex-col w-full lg:flex-row gap-3">
 								<TextInput
+									bind:value={userSX}
+									labelText="Student Gender"
+									placeholder="Gender"
+									readonly
+								/>
+								<TextInput
+									bind:value={userAD}
 									labelText="Student Address"
 									placeholder="Enter your complete address"
-									readonly={!edit}
+									readonly
 								/>
 							</div>
 							<br />
-							<div class="flex flex-col w-full lg:flex-row gap-2">
+							<div class="flex flex-col w-full lg:flex-row gap-3">
 								<TextInput
+									bind:value={userCN}
 									labelText="Student Contact Number"
 									placeholder="09876543210"
-									readonly={!edit}
+									readonly
 								/>
 								<TextInput
+									bind:value={userEC}
 									labelText="Emergency Contact Number"
 									placeholder="09876543210"
-									readonly={!edit}
+									readonly
 								/>
 							</div>
 							<br />
-							<div class="flex flex-col w-full lg:flex-row gap-2">
-								<div class="flex flex-row w-full gap-2">
+							<div class="flex flex-col w-full lg:flex-row gap-3">
+								<div class="flex flex-row w-full gap-3">
 									<TextInput
+										bind:value={userMA}
 										labelText="Mother's Name"
 										placeholder="Enter your mother's name"
-										readonly={!edit}
+										readonly
 									/>
 									<TextInput
+										bind:value={userFA}
 										labelText="Father's Name"
 										placeholder="Enter your father's name"
-										readonly={!edit}
+										readonly
 									/>
 									<TextInput
+										bind:value={userGA}
 										labelText="Guardian's Name"
 										placeholder="Enter your guardian's name"
-										readonly={!edit}
+										readonly
 									/>
 								</div>
 							</div>
@@ -679,61 +785,75 @@
 						</div>
 						<br />
 						<div class="flex flex-col w-full">
-							<div class="flex flex-col w-full lg:flex-row gap-2">
+							<div class="flex flex-col w-full lg:flex-row gap-3">
 								<TextInput
+									bind:value={userLN}
 									labelText="Last Name"
 									placeholder="Enter your last name"
-									readonly={!edit}
+									readonly
 								/>
 								<TextInput
+									bind:value={userFN}
 									labelText="First Name"
 									placeholder="Enter your first name"
-									readonly={!edit}
+									readonly
 								/>
 								<TextInput
+									bind:value={userMN}
 									labelText="Middle Name"
 									placeholder="Enter your middle name"
-									readonly={!edit}
+									readonly
 								/>
 								<TextInput
+									bind:value={userSF}
 									labelText="Suffix (if any)"
 									placeholder="Sr., Jr., III., etc."
-									readonly={!edit}
+									readonly
 								/>
 							</div>
 							<br />
-							<div class="flex flex-col w-full lg:flex-row gap-2">
-								<TextInput labelText="Employee Gender" placeholder="Gender" readonly={!edit} />
+							<div class="flex flex-col w-full lg:flex-row gap-3">
 								<TextInput
+									bind:value={userSX}
+									labelText="Employee Gender"
+									placeholder="Gender"
+									readonly
+								/>
+								<TextInput
+									bind:value={userAD}
 									labelText="Employee Address"
 									placeholder="Enter your complete address"
-									readonly={!edit}
+									readonly
 								/>
 							</div>
 							<br />
-							<div class="flex flex-col w-full lg:flex-row gap-2">
+							<div class="flex flex-col w-full lg:flex-row gap-3">
 								<TextInput
+									bind:value={userCN}
 									labelText="Employee Contact Number"
 									placeholder="09876543210"
-									readonly={!edit}
+									readonly
 								/>
 								<TextInput
+									bind:value={userEC}
 									labelText="Emergency Contact Number"
 									placeholder="09876543210"
-									readonly={!edit}
+									readonly
 								/>
 							</div>
 							<br />
-							<div class="flex flex-col w-full lg:flex-row gap-2">
+							<div class="flex flex-col w-full lg:flex-row gap-3">
 								<TextInput
+									bind:value={userCP}
 									labelText="Contact Person"
 									placeholder="Enter your contact person's name"
-									readonly={!edit}
+									readonly
 								/>
 								<TextInput
+									bind:value={userCR}
 									labelText="Relation (optional)"
 									placeholder="Your relationship to your contact person"
-									readonly={!edit}
+									readonly
 								/>
 							</div>
 						</div>
@@ -747,35 +867,47 @@
 						<h6 class="underline">Account Information</h6>
 					</div>
 					<br />
-					<div class="flex flex-col w-full gap-4">
-						<div class="flex flex-col lg:flex-row gap-2">
+					<div class="flex flex-col w-full gap-3">
+						<div class="flex flex-col lg:flex-row gap-3">
 							<TextInput
+								bind:value={userID}
 								labelText="Account ID"
 								placeholder="System-generated account ID"
-								readonly={!edit}
+								readonly
 							/>
 							<TextInput
+								bind:value={userUN}
 								labelText="Username"
 								placeholder="System-generated username"
-								readonly={!edit}
+								readonly
+							/>
+							<PasswordInput
+								bind:value={userPW}
+								labelText="Password"
+								placeholder="System-generated password"
+								readonly
 							/>
 						</div>
 						<ComboBox
+							bind:value={userCL}
+							on:select={makeUserUN}
+							on:select={makeUserPW}
 							titleText="User Class"
 							placeholder="Designated user class"
 							items={[
-								{ id: '0', text: 'Student' },
-								{ id: '1', text: 'Administrator' },
-								{ id: '2', text: 'Registrar' },
-								{ id: '3', text: 'Cashier' },
-								{ id: '4', text: 'Guidance' },
-								{ id: '5', text: 'Librarian' },
-								{ id: '6', text: 'Nurse' },
-								{ id: '7', text: 'Faculty' }
+								{ id: '0', text: 'student' },
+								{ id: '1', text: 'administrator' },
+								{ id: '2', text: 'registrar' },
+								{ id: '3', text: 'cashier' },
+								{ id: '4', text: 'guidance' },
+								{ id: '5', text: 'librarian' },
+								{ id: '6', text: 'nurse' },
+								{ id: '7', text: 'faculty' }
 							]}
 							disabled={!edit}
 						/>
 						<ComboBox
+							bind:value={userST}
 							titleText="User Status"
 							placeholder="Account status"
 							items={[
@@ -896,7 +1028,7 @@
 				<h6 class="underline">Login Details</h6>
 			</div>
 			<br />
-			<div class="flex flex-col w-full gap-4">
+			<div class="flex flex-col w-full gap-3">
 				<TextInput labelText="Account ID" placeholder="System-generated account ID" readonly />
 				<TextInput labelText="Username" placeholder="System-generated username" readonly />
 				<PasswordInput
@@ -918,7 +1050,7 @@
 				</div>
 				<br />
 				<div class="flex flex-col w-full">
-					<div class="flex flex-col w-full gap-4">
+					<div class="flex flex-col w-full gap-3">
 						<TextInput labelText="Last Name" placeholder="Your last name" readonly={!editAC} />
 						<TextInput labelText="First Name" placeholder="Your first name" readonly={!editAC} />
 						<TextInput labelText="Middle Name" placeholder="Your middle name" readonly={!editAC} />
@@ -934,7 +1066,7 @@
 						/>
 					</div>
 					<br />
-					<div class="flex flex-col w-full lg:flex-row gap-4">
+					<div class="flex flex-col w-full lg:flex-row gap-3">
 						<TextInput
 							labelText="Student Contact Number"
 							placeholder="Your contact number"
@@ -947,7 +1079,7 @@
 						/>
 					</div>
 					<br />
-					<div class="flex flex-col w-full gap-4">
+					<div class="flex flex-col w-full gap-3">
 						<TextInput
 							labelText="Mother's Name"
 							placeholder="Your mother's name"
@@ -973,7 +1105,7 @@
 				</div>
 				<br />
 				<div class="flex flex-col w-full">
-					<div class="flex flex-col w-full gap-4">
+					<div class="flex flex-col w-full gap-3">
 						<TextInput
 							labelText="Last Name"
 							placeholder="Enter your last name"
@@ -1011,7 +1143,7 @@
 						/>
 					</div>
 					<br />
-					<div class="flex flex-col w-full gap-4">
+					<div class="flex flex-col w-full gap-3">
 						<TextInput
 							labelText="Contact Person"
 							placeholder="Enter your contact person's name"
