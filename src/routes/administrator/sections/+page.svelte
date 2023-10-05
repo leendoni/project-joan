@@ -149,6 +149,7 @@
 	function handleLogout() {
 		localStorage.removeItem('userID');
 		localStorage.removeItem('userCL');
+		goto('/login');
 	}
 	// #endregion
 	// #region for database
@@ -257,13 +258,7 @@
 					icon={Asleep}
 				/>
 				<Button
-					tooltipPosition="left"
-					iconDescription="Notifications"
-					kind="secondary"
-					icon={Notification}
-				/>
-				<Button
-					on:click={goHome}
+					on:click={handleLogout}
 					tooltipPosition="left"
 					iconDescription="Logout"
 					kind="danger"
@@ -430,7 +425,7 @@
 		{/if}
 	</SideNav>
 
-	{#if loclCL === 'god' || loclCL === 'admin'}
+	{#if loclCL === 'god' || loclCL === 'administrator'}
 		<Content>
 			<div class="flex md:hidden lg:hidden">
 				<p>

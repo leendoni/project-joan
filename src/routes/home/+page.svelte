@@ -153,6 +153,7 @@
 	function handleLogout() {
 		localStorage.removeItem('userID');
 		localStorage.removeItem('userCL');
+		goto('/login');
 	}
 	// #endregion
 	// #region for database
@@ -367,13 +368,6 @@
 					icon={Asleep}
 				/>
 				<Button
-					tooltipPosition="left"
-					iconDescription="Notifications"
-					kind="secondary"
-					icon={Notification}
-				/>
-				<Button
-					on:click={goLogin}
 					on:click={handleLogout}
 					tooltipPosition="left"
 					iconDescription="Logout"

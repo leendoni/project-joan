@@ -3,7 +3,7 @@
 	// svelte
 	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
-// components
+	// components
 	import {
 		Button,
 		ComboBox,
@@ -35,14 +35,19 @@
 		Box,
 		Bullhorn,
 		Calendar,
+		CalendarSettings,
 		Catalog,
+		CatalogPublish,
 		Categories,
 		ContainerSoftware,
+		Dashboard,
 		Debug,
 		Edit,
 		Education,
 		EventSchedule,
+		Events,
 		Finance,
+		GroupObjectsNew,
 		Information,
 		Logout,
 		Money,
@@ -51,6 +56,7 @@
 		Notification,
 		Partnership,
 		Recycle,
+		Report,
 		Save,
 		Settings,
 		SettingsAdjust,
@@ -145,6 +151,7 @@
 	function handleLogout() {
 		localStorage.removeItem('userID');
 		localStorage.removeItem('userCL');
+		goto('/login');
 	}
 	// #endregion
 	// #region for database
@@ -240,13 +247,7 @@
 					icon={Asleep}
 				/>
 				<Button
-					tooltipPosition="left"
-					iconDescription="Notifications"
-					kind="secondary"
-					icon={Notification}
-				/>
-				<Button
-					on:click={goHome}
+					on:click={handleLogout}
 					tooltipPosition="left"
 					iconDescription="Logout"
 					kind="danger"
@@ -261,17 +262,9 @@
 	<SideNav bind:isOpen={sideBR} rail>
 		{#if loclCL === 'god'}
 			<SideNavItems>
-				<SideNavLink
-					icon={UserSettings}
-					on:click={() => (accountSTMD00 = true)}
-					text="Account Information"
-				/>
+				<SideNavLink icon={Dashboard} href="/dashboard" text="Dashboard" />
 				<SideNavDivider />
 				<SideNavLink icon={Debug} href="/bugs" text="Reported Bugs" />
-				<SideNavDivider />
-				<SideNavLink icon={Bullhorn} href="/bulletin" text="Campus Bulletin" />
-				<SideNavLink icon={EventSchedule} href="/schedules" text="Class Schedules" />
-				<SideNavLink icon={Finance} href="/school" text="School Information" />
 				<SideNavDivider />
 				<SideNavMenu expanded icon={SettingsAdjust} text="Management Modules">
 					<SideNavLink href="/administrator/users" text="User Management" />
@@ -281,8 +274,9 @@
 					<SideNavLink href="/administrator/bulletin" text="Bulletin Management" />
 				</SideNavMenu>
 				<SideNavMenu icon={Education} text="Academic Modules">
+					<SideNavLink href="/academic/admission" text="Admissions" />
+					<SideNavLink href="/academic/enrollment" text="Enrolments" />
 					<SideNavLink href="/academic/sections" text="Sections" />
-					<SideNavLink href="/academic/students" text="Students" />
 					<SideNavLink href="/academic/subjects" text="Subjects" />
 					<SideNavLink href="/academic/gradebook" text="Gradebook" />
 					<hr />
@@ -294,169 +288,133 @@
 					<SideNavLink href="/finance/defaults" text="Financial Settings" />
 				</SideNavMenu>
 				<SideNavMenu icon={ContainerSoftware} text="Miscellaneous Modules">
-					<SideNavLink href="/library" text="Library" />
+					<SideNavLink href="/library" text="Library Management" />
 					<SideNavLink href="/health" text="Health Records" />
 				</SideNavMenu>
 				<SideNavDivider />
 				<SideNavLink icon={Information} href="/about" text="System Information" />
+				<SideNavLink icon={Report} href="/reports" text="System Reports" />
 				<SideNavLink icon={Settings} href="/defaults" text="System Settings" />
 				<SideNavDivider />
-				<SideNavLink icon={Box} href="/archives" text="System Archives" />
+				<SideNavMenu icon={Box} text="Archives">
+					<SideNavLink href="/archives/system" text="System Archives" />
+					<SideNavLink href="/archives/student" text="Student Archives" />
+					<SideNavLink href="/archives/employee" text="Employee Archives" />
+				</SideNavMenu>
+				<SideNavDivider />
+				<SideNavLink icon={EventSchedule} href="/schedules" text="Class Schedules" />
 			</SideNavItems>
-		{:else if loclCL === 'admin'}
+		{:else if loclCL === 'administrator'}
 			<SideNavItems>
-				<SideNavItems>
-					<SideNavLink
-						icon={UserSettings}
-						on:click={() => (accountSTMD00 = true)}
-						text="Account Information"
-					/>
-					<SideNavDivider />
-					<SideNavLink icon={Bullhorn} href="/bulletin" text="Campus Bulletin" />
-					<SideNavLink icon={EventSchedule} href="/schedules" text="Class Schedules" />
-					<SideNavLink icon={Finance} href="/school" text="School Information" />
-					<SideNavDivider />
-					<SideNavMenu expanded icon={SettingsAdjust} text="Management Modules">
-						<SideNavLink href="/administrator/users" text="User Management" />
-						<SideNavLink href="/administrator/sections" text="Section Management" />
-						<SideNavLink isSelected href="/administrator/subjects" text="Subject Management" />
-						<SideNavLink href="/administrator/schedules" text="Schedule Management" />
-						<SideNavLink href="/administrator/bulletin" text="Bulletin Management" />
-					</SideNavMenu>
-					<SideNavMenu icon={Education} text="Academic Modules">
-						<SideNavLink href="/academic/sections" text="Sections" />
-						<SideNavLink href="/academic/students" text="Students" />
-						<SideNavLink href="/academic/subjects" text="Subjects" />
-						<SideNavLink href="/academic/gradebook" text="Gradebook" />
-						<hr />
-						<SideNavLink href="/guidance/records" text="Guidance Records" />
-						<SideNavLink href="/guidance/defaults" text="Guidance Settings" />
-					</SideNavMenu>
-					<SideNavMenu icon={Money} text="Financial Modules">
-						<SideNavLink href="/finance/transact" text="Financial Transactions" />
-						<SideNavLink href="/finance/defaults" text="Financial Settings" />
-					</SideNavMenu>
-					<SideNavMenu icon={ContainerSoftware} text="Miscellaneous Modules">
-						<SideNavLink href="/library" text="Library" />
-						<SideNavLink href="/health" text="Health Records" />
-					</SideNavMenu>
-					<SideNavDivider />
-					<SideNavLink icon={Information} href="/about" text="System Information" />
-					<SideNavLink icon={Settings} href="/defaults" text="System Settings" />
-					<SideNavDivider />
-					<SideNavLink icon={Box} href="/archives" text="System Archives" />
-				</SideNavItems>
+				<SideNavLink icon={Dashboard} href="/dashboard" text="Dashboard" />
+				<SideNavDivider />
+				<SideNavLink icon={Events} href="/administrator/users" text="User Management" />
+				<SideNavLink
+					isSelected
+					icon={NotebookReference}
+					href="/administrator/subjects"
+					text="Subject Management"
+				/>
+				<SideNavLink
+					icon={Categories}
+					href="/administrator/sections"
+					text="Section Management"
+				/>
+				<SideNavLink
+					icon={CalendarSettings}
+					href="/administrator/schedules"
+					text="Schedule Management"
+				/>
+				<SideNavLink
+					icon={CatalogPublish}
+					href="/administrator/bulletin"
+					text="Bulletin Management"
+				/>
+				<SideNavDivider />
+				<SideNavLink icon={Information} href="/about" text="System Information" />
+				<SideNavLink icon={Report} href="/reports" text="System Reports" />
+				<SideNavLink icon={Settings} href="/defaults" text="System Settings" />
+				<SideNavDivider />
+				<SideNavLink icon={EventSchedule} href="/schedules" text="Class Schedules" />
+				<SideNavDivider />
+				<SideNavMenu icon={Box} text="Archives">
+					<SideNavLink href="/archives/system" text="System Archives" />
+					<SideNavLink href="/archives/student" text="Student Archives" />
+					<SideNavLink href="/archives/employee" text="Employee Archives" />
+				</SideNavMenu>
+			</SideNavItems>
+		{:else if loclCL === 'admission'}
+			<SideNavItems>
+				<SideNavLink icon={Dashboard} href="/dashboard" text="Dashboard" />
+				<SideNavDivider />
+				<SideNavLink icon={GroupObjectsNew} href="/academic/admission" text="Admissions" />
+				<SideNavLink icon={Notebook} href="/academic/subjects" text="Subjects" />
 			</SideNavItems>
 		{:else if loclCL === 'registrar'}
 			<SideNavItems>
-				<SideNavLink
-					icon={UserSettings}
-					on:click={() => (accountSTMD00 = true)}
-					text="Account Information"
-				/>
+				<SideNavLink icon={Dashboard} href="/dashboard" text="Dashboard" />
 				<SideNavDivider />
-				<SideNavLink icon={Bullhorn} href="/bulletin" text="Campus Bulletin" />
-				<SideNavLink icon={EventSchedule} href="/schedules" text="Class Schedules" />
-				<SideNavLink icon={Finance} href="/school" text="School Information" />
-				<SideNavDivider />
+				<SideNavLink icon={Education} href="/academic/enrollment" text="Enrolments" />
 				<SideNavLink icon={Categories} href="/academic/sections" text="Sections" />
-				<SideNavLink icon={Education} href="/academic/students" text="Students" />
 				<SideNavLink icon={Notebook} href="/academic/subjects" text="Subjects" />
 				<SideNavLink icon={NotebookReference} href="/academic/gradebook" text="Gradebook" />
+				<SideNavDivider />
+				<SideNavLink icon={Box} href="/archives/student" text="Student Archives" />
 			</SideNavItems>
 		{:else if loclCL === 'cashier'}
 			<SideNavItems>
-				<SideNavLink
-					icon={UserSettings}
-					on:click={() => (accountSTMD00 = true)}
-					text="Account Information"
-				/>
-				<SideNavDivider />
-				<SideNavLink icon={Bullhorn} href="/bulletin" text="Campus Bulletin" />
-				<SideNavLink icon={EventSchedule} href="/schedules" text="Class Schedules" />
-				<SideNavLink icon={Finance} href="/school" text="School Information" />
+				<SideNavLink icon={Dashboard} href="/dashboard" text="Dashboard" />
 				<SideNavDivider />
 				<SideNavLink icon={Money} href="/finance/transact" text="Financial Transactions" />
 				<SideNavLink icon={Wallet} href="/finance/defaults" text="Financial Settings" />
 			</SideNavItems>
 		{:else if loclCL === 'guidance'}
 			<SideNavItems>
-				<SideNavLink
-					icon={UserSettings}
-					on:click={() => (accountSTMD00 = true)}
-					text="Account Information"
-				/>
-				<SideNavDivider />
-				<SideNavLink icon={Bullhorn} href="/bulletin" text="Campus Bulletin" />
-				<SideNavLink icon={EventSchedule} href="/schedules" text="Class Schedules" />
-				<SideNavLink icon={Finance} href="/school" text="School Information" />
+				<SideNavLink icon={Dashboard} href="/dashboard" text="Dashboard" />
 				<SideNavDivider />
 				<SideNavLink icon={UserSponsor} href="/guidance/records" text="Guidance Records" />
 				<SideNavLink icon={Partnership} href="/guidance/defaults" text="Guidance Settings" />
+				<SideNavDivider />
+				<SideNavLink icon={EventSchedule} href="/schedules" text="Class Schedules" />
 			</SideNavItems>
 		{:else if loclCL === 'faculty'}
 			<SideNavItems>
-				<SideNavLink
-					icon={UserSettings}
-					on:click={() => (accountSTMD00 = true)}
-					text="Account Information"
-				/>
-				<SideNavDivider />
-				<SideNavLink icon={Bullhorn} href="/bulletin" text="Campus Bulletin" />
-				<SideNavLink icon={EventSchedule} href="/schedules" text="Class Schedules" />
-				<SideNavLink icon={Finance} href="/school" text="School Information" />
+				<SideNavLink icon={Dashboard} href="/dashboard" text="Dashboard" />
 				<SideNavDivider />
 				<SideNavLink icon={Notebook} href="/academic/subjects" text="Subjects" />
 				<SideNavLink icon={NotebookReference} href="/academic/gradebook" text="Gradebook" />
+				<SideNavDivider />
+				<SideNavLink icon={EventSchedule} href="/schedules" text="Class Schedules" />
 			</SideNavItems>
 		{:else if loclCL === 'librarian'}
 			<SideNavItems>
-				<SideNavLink
-					icon={UserSettings}
-					on:click={() => (accountSTMD00 = true)}
-					text="Account Information"
-				/>
+				<SideNavLink icon={Dashboard} href="/dashboard" text="Dashboard" />
 				<SideNavDivider />
-				<SideNavLink icon={Bullhorn} href="/bulletin" text="Campus Bulletin" />
-				<SideNavLink icon={Finance} href="/school" text="School Information" />
-				<SideNavDivider />
-				<SideNavLink icon={Book} href="/library" text="Library" />
+				<SideNavLink icon={Book} href="/library" text="Library Management" />
 			</SideNavItems>
 		{:else if loclCL === 'nurse'}
 			<SideNavItems>
-				<SideNavLink
-					icon={UserSettings}
-					on:click={() => (accountSTMD00 = true)}
-					text="Account Information"
-				/>
-				<SideNavDivider />
-				<SideNavLink icon={Bullhorn} href="/bulletin" text="Campus Bulletin" />
-				<SideNavLink icon={Finance} href="/school" text="School Information" />
+				<SideNavLink icon={Dashboard} href="/dashboard" text="Dashboard" />
 				<SideNavDivider />
 				<SideNavLink icon={Stethoscope} href="/health" text="Health Records" />
 			</SideNavItems>
 		{:else if loclCL === 'student'}
 			<SideNavItems>
-				<SideNavLink
-					icon={UserSettings}
-					on:click={() => (accountSTMD00 = true)}
-					text="Account Information"
-				/>
-				<SideNavDivider />
-				<SideNavLink icon={Bullhorn} href="/bulletin" text="Campus Bulletin" />
-				<SideNavLink icon={Finance} href="/school" text="School Information" />
+				<SideNavLink icon={Dashboard} href="/dashboard" text="Dashboard" />
 				<SideNavDivider />
 				<SideNavLink icon={Calendar} href="/student/schedules" text="Class Schedules" />
 				<SideNavLink icon={Catalog} href="/student/grades" text="Subject Grades" />
 				<SideNavLink icon={Money} href="/student/transactions" text="Balance & Transactions" />
 			</SideNavItems>
+		{:else if loclCL === 'employee'}
+			<SideNavItems />
 		{:else}
 			<!-- return to login if no stored class -->
 			{goto('/login')}
 		{/if}
 	</SideNav>
 
-	{#if loclCL === 'god' || loclCL === 'admin'}
+	{#if loclCL === 'god' || loclCL === 'administrator'}
 		<Content>
 			<div class="flex md:hidden lg:hidden">
 				<p>

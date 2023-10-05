@@ -162,6 +162,7 @@
 	function handleLogout() {
 		localStorage.removeItem('userID');
 		localStorage.removeItem('userCL');
+		goto('/login');
 	}
 	// #endregion
 	// #region for database
@@ -201,7 +202,7 @@
 
 	let userHeader = [
 		{ key: 'userID', value: 'Account ID' },
-		{ key: 'userLR', value: 'Student LRN' },
+		{ key: 'userCL', value: 'Account Class' },
 		{ key: 'userLN', value: 'Last Name' },
 		{ key: 'userFN', value: 'First Name' },
 		{ key: 'userMN', value: 'Middle Name' },
@@ -215,8 +216,8 @@
 	let selectedRowIds = []; // get toggled radio
 
 	async function getUserData() {
-		// const q = query(getUsers, where('userCL', '==', 'student'));
-		const q = query(getUsers);
+		// const q = query(getUsers, where('userCL', '!=', 'student'));
+		const q = query(getUsers, where('userCL', 'not-in', ['student', 'god']));
 		const snapshot = await getDocs(q);
 		const data = snapshot.docs.map((doc) => doc.data());
 		return data;
@@ -397,7 +398,7 @@
 					icon={Asleep}
 				/>
 				<Button
-					on:click={goHome}
+					on:click={handleLogout}
 					tooltipPosition="left"
 					iconDescription="Logout"
 					kind="danger"
@@ -632,59 +633,53 @@
 			<div class="w-full">
 				<div class="flex flex-col lg:flex-row">
 					<div class="w-full lg:w-1/4 lg:self-center">
-						<h6 class="underline">Academic Information</h6>
+						<h6 class="underline">Account Information</h6>
 					</div>
 					<br />
-					<div class="flex flex-col w-full lg:flex-row gap-3">
-						<ComboBox
-							bind:value={userYR}
-							titleText="Academic Year"
-							placeholder="Current academic year"
-							items={[
-								{ id: '0', text: '2023-2024' },
-								{ id: '1', text: '2024-2025' },
-								{ id: '2', text: '2025-2026' },
-								{ id: '3', text: '2026-2027' },
-								{ id: '4', text: '2027-2028' },
-								{ id: '5', text: '2028-2029' },
-								{ id: '6', text: '2029-2030' },
-								{ id: '7', text: '2030-2031' },
-								{ id: '8', text: '2031-2032' },
-								{ id: '9', text: '2032-2033' },
-								{ id: '10', text: '2033-2034' },
-								{ id: '11', text: '2034-2035' },
-								{ id: '12', text: '2035-2036' },
-								{ id: '13', text: '2036-2037' },
-								{ id: '14', text: '2037-2038' },
-								{ id: '15', text: '2038-2039' },
-								{ id: '16', text: '2039-2040' },
-								{ id: '17', text: '2040-2041' },
-								{ id: '18', text: '2041-2042' },
-								{ id: '19', text: '2042-2043' },
-								{ id: '20', text: '2043-2044' },
-								{ id: '21', text: '2044-2045' },
-								{ id: '22', text: '2045-2046' },
-								{ id: '23', text: '2046-2047' },
-								{ id: '24', text: '2047-2048' }
-							]}
-							disabled={!edit}
-						/>
-						<ComboBox
-							bind:value={userSM}
-							titleText="Semester"
-							placeholder="Current semester"
-							items={[
-								{ id: '0', text: 'First' },
-								{ id: '1', text: 'Second' }
-							]}
-							disabled={!edit}
-						/>
-						<TextInput
-							bind:value={userLR}
-							labelText="Learner's Reference Number"
-							placeholder="Enter your LRN"
-							readonly={!edit}
-						/>
+					<div class="flex flex-col w-full gap-3">
+						<div class="flex flex-col gap-3">
+							<div class="flex flex-row gap-3">
+								<TextInput
+									bind:value={userID}
+									labelText="Account ID"
+									placeholder="System-generated account ID"
+									readonly
+								/>
+								<TextInput
+									bind:value={userLR}
+									labelText="Government ID Number"
+									placeholder="Your provided government ID number"
+									readonly={!edit}
+								/>
+							</div>
+							<ComboBox
+								bind:value={userCL}
+								on:select={makeUserUN}
+								on:select={makeUserPW}
+								titleText="User Class"
+								placeholder="Designated user class"
+								items={[
+									{ id: '0', text: 'administrator' },
+									{ id: '1', text: 'registrar' },
+									{ id: '2', text: 'cashier' },
+									{ id: '3', text: 'guidance' },
+									{ id: '4', text: 'librarian' },
+									{ id: '5', text: 'nurse' },
+									{ id: '6', text: 'faculty' }
+								]}
+								disabled={!edit}
+							/>
+							<ComboBox
+								bind:value={userST}
+								titleText="User Status"
+								placeholder="Account status"
+								items={[
+									{ id: '0', text: 'ACTIVE' },
+									{ id: '1', text: 'INACTIVE' }
+								]}
+								disabled={!edit}
+							/>
+						</div>
 					</div>
 				</div>
 				<br />
@@ -859,65 +854,6 @@
 						</div>
 					</div>
 				{/if}
-				<br />
-				<hr />
-				<br />
-				<div class="flex flex-col lg:flex-row">
-					<div class="w-full lg:w-1/4 lg:self-center">
-						<h6 class="underline">Account Information</h6>
-					</div>
-					<br />
-					<div class="flex flex-col w-full gap-3">
-						<div class="flex flex-col lg:flex-row gap-3">
-							<TextInput
-								bind:value={userID}
-								labelText="Account ID"
-								placeholder="System-generated account ID"
-								readonly
-							/>
-							<TextInput
-								bind:value={userUN}
-								labelText="Username"
-								placeholder="System-generated username"
-								readonly
-							/>
-							<PasswordInput
-								bind:value={userPW}
-								labelText="Password"
-								placeholder="System-generated password"
-								readonly
-							/>
-						</div>
-						<ComboBox
-							bind:value={userCL}
-							on:select={makeUserUN}
-							on:select={makeUserPW}
-							titleText="User Class"
-							placeholder="Designated user class"
-							items={[
-								{ id: '0', text: 'student' },
-								{ id: '1', text: 'administrator' },
-								{ id: '2', text: 'registrar' },
-								{ id: '3', text: 'cashier' },
-								{ id: '4', text: 'guidance' },
-								{ id: '5', text: 'librarian' },
-								{ id: '6', text: 'nurse' },
-								{ id: '7', text: 'faculty' }
-							]}
-							disabled={!edit}
-						/>
-						<ComboBox
-							bind:value={userST}
-							titleText="User Status"
-							placeholder="Account status"
-							items={[
-								{ id: '0', text: 'ACTIVE' },
-								{ id: '1', text: 'INACTIVE' }
-							]}
-							disabled={!edit}
-						/>
-					</div>
-				</div>
 			</div>
 		</Content>
 	{:else}

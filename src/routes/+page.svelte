@@ -135,7 +135,7 @@
 					iconDescription="Login"
 					kind="primary"
 					icon={Pen}
-				>Apply now</Button>
+				/>
 			</div>
 		</div>
 	</HeaderUtilities>

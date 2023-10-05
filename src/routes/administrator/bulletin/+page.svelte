@@ -163,6 +163,7 @@
 	function handleLogout() {
 		localStorage.removeItem('userID');
 		localStorage.removeItem('userCL');
+		goto('/login');
 	}
 	// #endregion
 	// #region for database
