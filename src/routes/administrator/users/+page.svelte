@@ -23,8 +23,13 @@
 		SideNavMenu,
 		TextArea,
 		TextInput,
+		Tile,
+		Toggle,
+		ToggleSkeleton,
 		Toolbar,
 		ToolbarContent,
+		ToolbarMenu,
+		ToolbarMenuItem,
 		ToolbarSearch
 	} from 'carbon-components-svelte';
 	// icons
@@ -44,7 +49,9 @@
 		Education,
 		EventSchedule,
 		Events,
+		Filter,
 		GroupObjectsNew,
+		HardwareSecurityModule,
 		Information,
 		Logout,
 		Money,
@@ -81,7 +88,8 @@
 	// user data
 	let userID = '',
 		userCL = '',
-		userST = '',
+		userST = false,
+		userRP = false,
 		userUN = '',
 		userPW = '',
 		userAY = '',
@@ -206,7 +214,7 @@
 		{ key: 'userLN', value: 'Last Name' },
 		{ key: 'userFN', value: 'First Name' },
 		{ key: 'userMN', value: 'Middle Name' },
-		{ key: 'userST', value: 'Status' }
+		{ key: 'userST', value: 'Activated?' }
 	];
 
 	let userRow = [];
@@ -215,20 +223,21 @@
 
 	let selectedRowIds = []; // get toggled radio
 
-	async function getUserData() {
+	async function getPassData() {
 		// const q = query(getUsers, where('userCL', '!=', 'student'));
-		const q = query(getUsers, where('userCL', 'not-in', ['student', 'god']));
+		const q = query(getUsers, where('userRP', '==', true));
 		const snapshot = await getDocs(q);
 		const data = snapshot.docs.map((doc) => doc.data());
 		return data;
 	}
 
-	async function loadUserData() {
-		const data = await getUserData();
+	async function loadPassData() {
+		const data = await getPassData();
 		userRow = data.map((item) => ({
 			id: item.userID,
 			userID: item.userID,
 			userCL: item.userCL,
+			userUN: item.userUN,
 			userAY: item.userAY,
 			userSM: item.userSM,
 			userLR: item.userLR,
@@ -245,7 +254,79 @@
 			userCP: item.userCP,
 			userCR: item.userCR,
 			userEC: item.userEC,
-			userST: item.userST
+			userST: item.userST,
+			userRP: item.userRP
+		}));
+	}
+
+	async function getUserData() {
+		// const q = query(getUsers, where('userCL', '!=', 'student'));
+		const q = query(getUsers, where('userCL', '==', 'student'));
+		const snapshot = await getDocs(q);
+		const data = snapshot.docs.map((doc) => doc.data());
+		return data;
+	}
+
+	async function loadUserData() {
+		const data = await getUserData();
+		userRow = data.map((item) => ({
+			id: item.userID,
+			userID: item.userID,
+			userCL: item.userCL,
+			userUN: item.userUN,
+			userAY: item.userAY,
+			userSM: item.userSM,
+			userLR: item.userLR,
+			userLN: item.userLN,
+			userFN: item.userFN,
+			userMN: item.userMN,
+			userSF: item.userSF,
+			userGD: item.userGD,
+			userCN: item.userCN,
+			userAD: item.userAD,
+			userMA: item.userMA,
+			userFA: item.userFA,
+			userGA: item.userGA,
+			userCP: item.userCP,
+			userCR: item.userCR,
+			userEC: item.userEC,
+			userST: item.userST,
+			userRP: item.userRP
+		}));
+	}
+
+	async function getEmployeeData() {
+		// const q = query(getUsers, where('userCL', '!=', 'student'));
+		const q = query(getUsers, where('userCL', 'not-in', ['student', 'god']));
+		const snapshot = await getDocs(q);
+		const data = snapshot.docs.map((doc) => doc.data());
+		return data;
+	}
+
+	async function loadEmployeeData() {
+		const data = await getEmployeeData();
+		userRow = data.map((item) => ({
+			id: item.userID,
+			userID: item.userID,
+			userCL: item.userCL,
+			userUN: item.userUN,
+			userAY: item.userAY,
+			userSM: item.userSM,
+			userLR: item.userLR,
+			userLN: item.userLN,
+			userFN: item.userFN,
+			userMN: item.userMN,
+			userSF: item.userSF,
+			userGD: item.userGD,
+			userCN: item.userCN,
+			userAD: item.userAD,
+			userMA: item.userMA,
+			userFA: item.userFA,
+			userGA: item.userGA,
+			userCP: item.userCP,
+			userCR: item.userCR,
+			userST: item.userST,
+			userRP: item.userRP
 		}));
 	}
 
@@ -268,6 +349,7 @@
 		if (data) {
 			userID = data.userID;
 			userCL = data.userCL;
+			userUN = data.userUN;
 			userAY = data.userAY;
 			userSM = data.userSM;
 			userLR = data.userLR;
@@ -285,6 +367,7 @@
 			userCR = data.userCR;
 			userEC = data.userEC;
 			userST = data.userST;
+			userRP = data.userRP;
 		} else {
 			// clear fields
 			userLN = '';
@@ -314,7 +397,54 @@
 			userCP: userCP,
 			userCR: userCR,
 			userEC: userEC,
-			userST: userST
+			userST: userST,
+			userRP: userRP
+		};
+
+		const q = query(getUsers, where('userID', '==', selectedRowIds.toString()));
+		const snapshot = await getDocs(q);
+
+		if (snapshot.empty) {
+			console.error('No records found for the selected reference code.');
+			return;
+		}
+
+		const docId = snapshot.docs[0].id;
+		const docRef = doc(db, schlID, 'data', 'users', docId);
+
+		try {
+			await updateDoc(docRef, updatedData);
+			console.log('Successfully updated');
+			loadEmployeeData();
+			edit = false;
+		} catch (error) {
+			edit = false;
+			console.error('Error updating document:', error);
+		}
+	}
+
+	function makeUserUN() {
+		const trimLR = userLR.slice(-6); // Get the last 6 characters of the LRN
+		userUN = `${userLN}.${trimLR}@csjd.project-joan.cloud`;
+	}
+
+	async function makeUserPW() {
+		userPW = userUN.slice(0, -24);
+		const salt = await bcrypt.genSalt(10); // Generate a salt
+		const hashedPassword = await bcrypt.hash(userPW, salt); // Hash the password
+		return hashedPassword;
+	}
+
+	async function resetPass() {
+		userRP = false;
+		userPW = "csjd.reset123";
+
+		const salt = await bcrypt.genSalt(10); // Generate a salt
+		const pass = await bcrypt.hash(userPW, salt); // Hash the password
+
+		const updatedData = {
+			userRP: userRP,
+			userPW: pass
 		};
 
 		const q = query(getUsers, where('userID', '==', selectedRowIds.toString()));
@@ -337,18 +467,6 @@
 			edit = false;
 			console.error('Error updating document:', error);
 		}
-	}
-
-	function makeUserUN() {
-		const trimLR = userLR.slice(-6); // Get the last 6 characters of the LRN
-		userUN = `${userLN}.${trimLR}@csjd.project-joan.cloud`;
-	}
-
-	async function makeUserPW() {
-		userPW = userUN.slice(0, -24);
-		const salt = await bcrypt.genSalt(10); // Generate a salt
-		const hashedPassword = await bcrypt.hash(userPW, salt); // Hash the password
-		return hashedPassword;
 	}
 
 	// #endregion
@@ -374,7 +492,7 @@
 			dbConn = false;
 		}
 
-		loadUserData();
+		loadEmployeeData();
 	});
 </script>
 
@@ -561,301 +679,217 @@
 	</SideNav>
 
 	{#if loclCL === 'god' || loclCL === 'administrator'}
-		<Content>
-			<div class="flex md:hidden lg:hidden">
-				<p>
-					If you are seeing this message, your screen is too small.<br /><br />Change to a device
-					with a larger screen or rotate your device to view the master table.
-				</p>
-			</div>
-			<div class="hidden md:flex lg:flex gap-3">
-				<div class="w-screen">
-					<DataTable
-						bind:selectedRowIds
-						on:click:row--select={handleSelected}
-						radio
-						zebra
-						sortable
-						size="short"
-						headers={userHeader}
-						rows={userRow}
-						page={userPage}
-						pageSize={userSize}
-					>
-						<Toolbar>
-							<ToolbarContent>
-								<ToolbarSearch shouldFilterRows />
-								<Button
-									on:click={loadUserData}
-									kind="ghost"
-									icon={Recycle}
-									iconDescription="Reload"
-									tooltipPosition="left"
-								/>
-								<Button
-									on:click={() => (edit = true)}
-									disabled={edit}
-									kind="tertiary"
-									icon={Edit}
-									iconDescription="Edit Selected"
-									tooltipPosition="left"
-								/>
-								<Button
-									disabled={!edit}
-									on:click={updateSelected}
-									kind="primary"
-									icon={Save}
-									iconDescription="Save Changes"
-									tooltipPosition="left"
-								/>
-								<!-- <Button
-									disabled={!edit}
-									kind="danger"
-									icon={TrashCan}
-									iconDescription="Delete Selected"
-									tooltipPosition="left"
-								/> -->
-							</ToolbarContent>
-						</Toolbar>
-					</DataTable>
-					<Pagination
-						bind:pageSize={userSize}
-						bind:page={userPage}
-						totalItems={userRow.length}
-						pageSizeInputDisabled
-					/>
-					<!-- <Pagination {rows} /> -->
-				</div>
-			</div>
-			<br />
-			<hr />
-			<br />
-			<div class="w-full">
-				<div class="flex flex-col lg:flex-row">
-					<div class="w-full lg:w-1/4 lg:self-center">
-						<h6 class="underline">Account Information</h6>
+		<div class="flex flex-col h-auto pl-12 pt-12">
+			<Content>
+				<div class="flex flex-col gap-3 w-full">
+					<div class="flex md:hidden lg:hidden">
+						<p>
+							If you are seeing this message, your screen is too small.<br /><br />Change to a
+							device with a larger screen or rotate your device to view the master table.
+						</p>
 					</div>
-					<br />
-					<div class="flex flex-col w-full gap-3">
-						<div class="flex flex-col gap-3">
-							<div class="flex flex-row gap-3">
-								<TextInput
-									bind:value={userID}
-									labelText="Account ID"
-									placeholder="System-generated account ID"
-									readonly
-								/>
-								<TextInput
-									bind:value={userLR}
-									labelText="Government ID Number"
-									placeholder="Your provided government ID number"
-									readonly={!edit}
-								/>
+					<div class="hidden md:flex lg:flex gap-3">
+						<div class="w-screen">
+							<div class="flex items-center justify-between h-8 pl-3 bg-stone-900">
+								<h6 class="text-white">User Masterlist</h6>
 							</div>
-							<ComboBox
-								bind:value={userCL}
-								on:select={makeUserUN}
-								on:select={makeUserPW}
-								titleText="User Class"
-								placeholder="Designated user class"
-								items={[
-									{ id: '0', text: 'administrator' },
-									{ id: '1', text: 'registrar' },
-									{ id: '2', text: 'cashier' },
-									{ id: '3', text: 'guidance' },
-									{ id: '4', text: 'librarian' },
-									{ id: '5', text: 'nurse' },
-									{ id: '6', text: 'faculty' }
-								]}
-								disabled={!edit}
-							/>
-							<ComboBox
-								bind:value={userST}
-								titleText="User Status"
-								placeholder="Account status"
-								items={[
-									{ id: '0', text: 'ACTIVE' },
-									{ id: '1', text: 'INACTIVE' }
-								]}
-								disabled={!edit}
+							<DataTable
+								bind:selectedRowIds
+								on:click:row--select={handleSelected}
+								radio
+								zebra
+								sortable
+								size="short"
+								headers={userHeader}
+								rows={userRow}
+								page={userPage}
+								pageSize={userSize}
+							>
+								<Toolbar>
+									<ToolbarContent>
+										<ToolbarSearch shouldFilterRows />
+										<Button
+											on:click={loadEmployeeData}
+											kind="ghost"
+											icon={Recycle}
+											iconDescription="Reload"
+											tooltipPosition="left"
+										/>
+										<ToolbarMenu icon={Filter} iconDescription="Filter">
+											<ToolbarMenuItem on:click={loadPassData}>Forgot Password</ToolbarMenuItem>
+											<ToolbarMenuItem on:click={loadUserData}>Students Only</ToolbarMenuItem>
+											<ToolbarMenuItem on:click={loadEmployeeData}>Employees Only</ToolbarMenuItem
+											>
+										</ToolbarMenu>
+										<Button
+											on:click={() => (edit = true)}
+											disabled={edit}
+											kind="tertiary"
+											icon={Edit}
+											iconDescription="Edit Selected"
+											tooltipPosition="left"
+										/>
+										<Button
+											disabled={!edit}
+											on:click={updateSelected}
+											kind="primary"
+											icon={Save}
+											iconDescription="Save Changes"
+											tooltipPosition="left"
+										/>
+									</ToolbarContent>
+								</Toolbar>
+							</DataTable>
+							<Pagination
+								bind:pageSize={userSize}
+								bind:page={userPage}
+								totalItems={userRow.length}
+								pageSizeInputDisabled
 							/>
 						</div>
 					</div>
-				</div>
-				<br />
-				<hr />
-				<br />
-				{#if userCL === 'student'}
-					<div class="flex flex-col lg:flex-row">
-						<div class="w-full lg:w-1/4 lg:self-center">
-							<h6 class="underline">Student Information</h6>
-						</div>
-						<br />
-						<div class="flex flex-col w-full">
-							<div class="flex flex-col w-full lg:flex-row gap-3">
-								<TextInput
-									bind:value={userLN}
-									labelText="Last Name"
-									placeholder="Enter your last name"
-									readonly
-								/>
-								<TextInput
-									bind:value={userFN}
-									labelText="First Name"
-									placeholder="Enter your first name"
-									readonly
-								/>
-								<TextInput
-									bind:value={userMN}
-									labelText="Middle Name"
-									placeholder="Enter your middle name"
-									readonly
-								/>
-								<TextInput
-									bind:value={userSF}
-									labelText="Suffix (if any)"
-									placeholder="Sr., Jr., III., etc."
-									readonly
-								/>
+					<div class="flex flex-col lg:flex-row gap-3">
+						<div class="w-full lg:w-1/2">
+							<div class="flex items-center justify-between h-8 pl-3 bg-stone-900">
+								<h6 class="text-white">User Information</h6>
 							</div>
-							<br />
-							<div class="flex flex-col w-full lg:flex-row gap-3">
-								<TextInput
-									bind:value={userSX}
-									labelText="Student Gender"
-									placeholder="Gender"
-									readonly
-								/>
-								<TextInput
-									bind:value={userAD}
-									labelText="Student Address"
-									placeholder="Enter your complete address"
-									readonly
-								/>
-							</div>
-							<br />
-							<div class="flex flex-col w-full lg:flex-row gap-3">
-								<TextInput
-									bind:value={userCN}
-									labelText="Student Contact Number"
-									placeholder="09876543210"
-									readonly
-								/>
-								<TextInput
-									bind:value={userEC}
-									labelText="Emergency Contact Number"
-									placeholder="09876543210"
-									readonly
-								/>
-							</div>
-							<br />
-							<div class="flex flex-col w-full lg:flex-row gap-3">
-								<div class="flex flex-row w-full gap-3">
-									<TextInput
-										bind:value={userMA}
-										labelText="Mother's Name"
-										placeholder="Enter your mother's name"
-										readonly
-									/>
-									<TextInput
-										bind:value={userFA}
-										labelText="Father's Name"
-										placeholder="Enter your father's name"
-										readonly
-									/>
-									<TextInput
-										bind:value={userGA}
-										labelText="Guardian's Name"
-										placeholder="Enter your guardian's name"
-										readonly
-									/>
+							<Tile class="flex flex-col w-full lg:flex-row">
+								<div class="flex flex-col w-full gap-3">
+									<div class="flex flex-col gap-3">
+										<div class="flex flex-col lg:flex-row gap-3">
+											<TextInput
+												bind:value={userLN}
+												labelText="Last Name"
+												placeholder="Your last name"
+												readonly
+											/>
+											<TextInput
+												bind:value={userFN}
+												labelText="First Name"
+												placeholder="Your first name"
+												readonly
+											/>
+											<TextInput
+												bind:value={userMN}
+												labelText="Middle Name"
+												placeholder="Your middle name"
+												readonly
+											/>
+										</div>
+										<div class="flex flex-col lg:flex-row gap-3">
+											<TextInput
+												bind:value={userSF}
+												labelText="Suffix (if any)"
+												placeholder="Sr., Jr., III., etc."
+												readonly
+											/>
+											<TextInput
+												bind:value={userSX}
+												labelText="Employee Gender"
+												placeholder="Gender"
+												readonly
+											/>
+										</div>
+										<TextInput
+											bind:value={userAD}
+											labelText="Employee Address"
+											placeholder="Your complete address"
+											readonly
+										/>
+										<div class="flex flex-col lg:flex-row gap-3">
+											<TextInput
+												bind:value={userCN}
+												labelText="Employee Contact Number"
+												placeholder="09876543210"
+												readonly
+											/>
+											<TextInput
+												bind:value={userEC}
+												labelText="Emergency Contact Number"
+												placeholder="09876543210"
+												readonly
+											/>
+										</div>
+										<div class="flex flex-col lg:flex-row gap-3">
+											<TextInput
+												bind:value={userCP}
+												labelText="Contact Person"
+												placeholder="Your contact person"
+												readonly
+											/>
+											<TextInput
+												bind:value={userCR}
+												labelText="Relation (optional)"
+												placeholder="Relation to contact person"
+												readonly
+											/>
+										</div>
+									</div>
 								</div>
+							</Tile>
+						</div>
+						<div class="flex flex-col gap-3 w-full lg:w-1/2">
+							<div class="w-full">
+								<div class="flex items-center justify-between h-8 pl-3 bg-stone-900">
+									<h6 class="text-white">Account Information</h6>
+								</div>
+								<Tile class="flex flex-col w-full lg:flex-row">
+									<div class="flex flex-col w-full gap-3">
+										<div class="flex flex-col gap-3">
+											<div class="flex flex-col lg:flex-row gap-3">
+												<Toggle bind:toggled={userST} labelText="Status" labelA="" labelB=""
+													>Sample</Toggle
+												>
+												<TextInput
+													bind:value={userID}
+													labelText="Account ID"
+													placeholder="System-generated account ID"
+													readonly
+												/>
+												<TextInput
+													bind:value={userLR}
+													labelText="Government ID Number"
+													placeholder="Your provided government ID number"
+													readonly={!edit}
+												/>
+											</div>
+											<div class="flex flex-col lg:flex-row gap-3">
+												<TextInput
+													bind:value={userUN}
+													labelText="Username"
+													placeholder="System-generated username"
+													readonly
+												/>
+												<ComboBox
+													bind:value={userCL}
+													titleText="User Class"
+													placeholder="Designated user class"
+													items={[
+														{ id: '0', text: 'administrator' },
+														{ id: '1', text: 'admission' },
+														{ id: '2', text: 'registrar' },
+														{ id: '3', text: 'cashier' },
+														{ id: '4', text: 'guidance' },
+														{ id: '5', text: 'librarian' },
+														{ id: '6', text: 'nurse' },
+														{ id: '7', text: 'faculty' }
+													]}
+													disabled={!edit}
+												/>
+											</div>
+											<hr />
+											<div class="flex flex-col lg:flex-row">
+												<Button on:click={resetPass} icon={HardwareSecurityModule} disabled={!userRP}>Reset Password</Button>
+											</div>
+										</div>
+									</div>
+								</Tile>
 							</div>
 						</div>
 					</div>
-				{:else}
-					<div class="flex flex-col lg:flex-row">
-						<div class="w-full lg:w-1/4 lg:self-center">
-							<h6 class="underline">Personal Information</h6>
-						</div>
-						<br />
-						<div class="flex flex-col w-full">
-							<div class="flex flex-col w-full lg:flex-row gap-3">
-								<TextInput
-									bind:value={userLN}
-									labelText="Last Name"
-									placeholder="Enter your last name"
-									readonly
-								/>
-								<TextInput
-									bind:value={userFN}
-									labelText="First Name"
-									placeholder="Enter your first name"
-									readonly
-								/>
-								<TextInput
-									bind:value={userMN}
-									labelText="Middle Name"
-									placeholder="Enter your middle name"
-									readonly
-								/>
-								<TextInput
-									bind:value={userSF}
-									labelText="Suffix (if any)"
-									placeholder="Sr., Jr., III., etc."
-									readonly
-								/>
-							</div>
-							<br />
-							<div class="flex flex-col w-full lg:flex-row gap-3">
-								<TextInput
-									bind:value={userSX}
-									labelText="Employee Gender"
-									placeholder="Gender"
-									readonly
-								/>
-								<TextInput
-									bind:value={userAD}
-									labelText="Employee Address"
-									placeholder="Enter your complete address"
-									readonly
-								/>
-							</div>
-							<br />
-							<div class="flex flex-col w-full lg:flex-row gap-3">
-								<TextInput
-									bind:value={userCN}
-									labelText="Employee Contact Number"
-									placeholder="09876543210"
-									readonly
-								/>
-								<TextInput
-									bind:value={userEC}
-									labelText="Emergency Contact Number"
-									placeholder="09876543210"
-									readonly
-								/>
-							</div>
-							<br />
-							<div class="flex flex-col w-full lg:flex-row gap-3">
-								<TextInput
-									bind:value={userCP}
-									labelText="Contact Person"
-									placeholder="Enter your contact person's name"
-									readonly
-								/>
-								<TextInput
-									bind:value={userCR}
-									labelText="Relation (optional)"
-									placeholder="Your relationship to your contact person"
-									readonly
-								/>
-							</div>
-						</div>
-					</div>
-				{/if}
-			</div>
-		</Content>
+				</div>
+			</Content>
+		</div>
 	{:else}
 		<div class="flex flex-col h-screen justify-center lg:flex-row pl-10">
 			<!-- displayed on mobile -->

@@ -23,13 +23,18 @@
 		SideNavMenu,
 		TextArea,
 		TextInput,
+		Tile,
+		Toggle,
+		ToggleSkeleton,
 		Toolbar,
 		ToolbarContent,
+		ToolbarMenu,
+		ToolbarMenuItem,
 		ToolbarSearch
 	} from 'carbon-components-svelte';
 	// icons
 	import {
-		AddAlt,
+		Add,
 		Asleep,
 		Book,
 		Box,
@@ -45,14 +50,14 @@
 		Education,
 		EventSchedule,
 		Events,
-		Export,
+		Filter,
 		GroupObjectsNew,
+		HardwareSecurityModule,
 		Information,
 		Logout,
 		Money,
 		Notebook,
 		NotebookReference,
-		Notification,
 		Partnership,
 		Recycle,
 		Report,
@@ -66,9 +71,10 @@
 	} from 'carbon-icons-svelte';
 	// pictograms
 	// firebase
-	import { addDoc, collection, doc, getDocs } from 'firebase/firestore';
+	import { addDoc, collection, doc, getDocs, query, updateDoc, where } from 'firebase/firestore';
 	import { db } from '../../../firebase';
 	// for password hashing
+	import bcrypt from 'bcryptjs';
 	// #endregion
 	// #region database values
 	let pageID = '/administrator/sections';
@@ -80,15 +86,42 @@
 	// database values
 	const getSchoolID = doc(db, schlID, acadYR);
 	const getUsers = collection(db, schlID, 'data', 'users');
+	const getSects = collection(db, schlID, 'data', 'sections');
 	// user data
 	let userID = '',
 		userCL = '',
-		userST = '',
+		userST = false,
+		userRP = false,
 		userUN = '',
 		userPW = '',
+		userAY = '',
+		userSM = '',
+		userYR = '',
+		userSC = '',
+		userLR = '',
 		userLN = '',
 		userFN = '',
-		userMN = '';
+		userMN = '',
+		userSF = '',
+		userSX = '',
+		userAD = '',
+		userMA = '',
+		userFA = '',
+		userGA = '',
+		userCP = '',
+		userCR = '',
+		userCN = 0,
+		userEC = 0;
+	// sect data
+	let sectID = '',
+		sectST = false,
+		sectYR = '',
+		sectNM = '',
+		sectAV = '',
+		sectTS = '',
+		sectTM = '',
+		sectTF = '',
+		sectAY = '';
 	// login data
 	let nputUN = '',
 		nputPW = '',
@@ -192,27 +225,166 @@
 		{ key: 'sectID', value: 'Section ID' },
 		{ key: 'sectYR', value: 'Section Year' },
 		{ key: 'sectNM', value: 'Section Name' },
-		{ key: 'sectTS', value: 'Total Students' },
-		{ key: 'sectST', value: 'Section Status' }
+		{ key: 'sectST', value: 'Activated?' }
 	];
 
 	let sectRow = [];
 	let sectSize = 10;
 	let sectPage = 1;
 
+	let maleHeader = [{ key: 'userLN' + ', ' + 'userFN' + ' ' + 'userMN', value: 'Student Name' }];
+
+	let maleRow = [];
+	let maleSize = 10;
+	let malePage = 1;
+
+	let femlHeader = [{ key: 'userLN' + ', ' + 'userFN' + ' ' + 'userMN', value: 'Student Name' }];
+
+	let femlRow = [];
+	let femlSize = 10;
+	let femlPage = 1;
+
 	let selectedRowIds = []; // get toggled radio
 
-	let listHeader = [
-		{ key: 'userID', value: 'Account ID' },
-		{ key: 'userLN', value: 'Last Name' },
-		{ key: 'userFN', value: 'First Name' },
-		{ key: 'userMN', value: 'Middle Name' },
-		{ key: 'userSX', value: 'Gender' }
-	];
+	function generateSectID() {
+		const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+		let result = '';
+		for (let i = 0; i < 6; i++) {
+			result += characters.charAt(Math.floor(Math.random() * characters.length));
+		}
+		sectID = result;
+	}
 
-	let listRow = [];
-	let listSize = 10;
-	let listPage = 1;
+	async function getSectData() {
+		// const q = query(getUsers, where('userCL', '!=', 'student'));
+		const q = query(getSects);
+		const snapshot = await getDocs(q);
+		const data = snapshot.docs.map((doc) => doc.data());
+		return data;
+	}
+
+	async function loadSectData() {
+		const data = await getSectData();
+		sectRow = data.map((item) => ({
+			id: item.sectID,
+			sectID: item.sectID,
+			sectST: item.sectST,
+			sectYR: item.sectYR,
+			sectNM: item.sectNM,
+			sectAV: item.sectAV,
+			sectTS: item.sectTS,
+			sectTM: item.sectTM,
+			sectTF: item.sectTF,
+			sectAY: item.sectAY
+		}));
+	}
+
+	async function fetchSelected(referenceCode) {
+		const q = query(getSects, where('sectID', '==', referenceCode));
+		const snapshot = await getDocs(q);
+
+		if (snapshot.empty) {
+			// No records found for the provided reference code
+			console.log('fetchSelected: Empty records.');
+			return null;
+		}
+
+		return snapshot.docs[0].data();
+	}
+
+	async function handleSelected() {
+		const data = await fetchSelected(selectedRowIds.toString()); // convert to string or it wont load
+
+		if (data) {
+			sectID = data.sectID;
+			sectST = data.sectST;
+			sectYR = data.sectYR;
+			sectNM = data.sectNM;
+			sectAV = data.sectAV;
+			sectTS = data.sectTS;
+			sectTM = data.sectTM;
+			sectTF = data.sectTF;
+			sectAY = data.sectAY;
+		} else {
+			// clear fields
+			userLN = '';
+			userFN = '';
+			userMN = '';
+		}
+
+		console.log(sectID);
+	}
+
+	async function updateSelected() {
+		const updatedData = {
+			sectID: sectID,
+			sectST: sectST,
+			sectYR: sectYR,
+			sectNM: sectNM,
+			sectAV: sectAV,
+			sectTS: sectTS,
+			sectTM: sectTM,
+			sectTF: sectTF,
+			sectAY: sectAY
+		};
+
+		const q = query(getSects, where('sectID', '==', selectedRowIds.toString()));
+		const snapshot = await getDocs(q);
+
+		if (snapshot.empty) {
+			console.error('No records found for the selected reference code.');
+			return;
+		}
+
+		const docId = snapshot.docs[0].id;
+		const docRef = doc(db, schlID, 'data', 'sections', docId);
+
+		try {
+			await updateDoc(docRef, updatedData);
+			console.log('Successfully updated');
+			loadSectData();
+			edit = false;
+		} catch (error) {
+			edit = false;
+			console.error('Error updating document:', error);
+		}
+	}
+
+	async function registerSect(event) {
+		event.preventDefault();
+
+		// Construct the data object
+		const sectData = {
+			sectID: sectID,
+			sectST: sectST,
+			sectYR: sectYR,
+			sectNM: sectNM,
+			sectAV: sectAV,
+			sectTS: sectTS,
+			sectTM: sectTM,
+			sectTF: sectTF,
+			sectAY: sectAY
+		};
+
+		try {
+			await uploadSect(sectData);
+			loadSectData();
+		} catch (e) {
+			console.log('Failed to save data. Please try again.');
+		}
+	}
+
+	async function uploadSect(data) {
+		try {
+			const docRef = await addDoc(collection(db, schlID, 'data', 'sections'), data);
+			console.log('Document written with ID: ', docRef.id);
+			return docRef.id; // you can return the ID to further use it if needed
+		} catch (e) {
+			console.error('Error adding document: ', e);
+			throw e; // re-throwing the error for the caller to handle
+		}
+	}
+
 	// #endregion
 	onMount(async () => {
 		loclTM = localStorage.getItem('loclTM'); // get stored theme on load
@@ -235,6 +407,8 @@
 			console.error('Failed. :', error);
 			dbConn = false;
 		}
+
+		loadSectData();
 	});
 </script>
 
@@ -319,18 +493,13 @@
 			<SideNavItems>
 				<SideNavLink icon={Dashboard} href="/dashboard" text="Dashboard" />
 				<SideNavDivider />
-				<SideNavLink icon={Events} href="/administrator/users" text="User Management" />
+				<SideNavLink isSelected icon={Events} href="/administrator/users" text="User Management" />
 				<SideNavLink
 					icon={NotebookReference}
 					href="/administrator/subjects"
 					text="Subject Management"
 				/>
-				<SideNavLink
-					isSelected
-					icon={Categories}
-					href="/administrator/sections"
-					text="Section Management"
-				/>
+				<SideNavLink icon={Categories} href="/administrator/subjects" text="Subject Management" />
 				<SideNavLink
 					icon={CalendarSettings}
 					href="/administrator/schedules"
@@ -425,201 +594,164 @@
 		{/if}
 	</SideNav>
 
-	{#if loclCL === 'god' || loclCL === 'administrator'}
-		<Content>
-			<div class="flex md:hidden lg:hidden">
-				<p>
-					If you are seeing this message, your screen is too small.<br /><br />Change to a device
-					with a larger screen or rotate your device to view the master table.
-				</p>
-			</div>
-			<div class="hidden md:flex lg:flex gap-3">
-				<div class="w-screen">
-					<DataTable
-						radio
-						zebra
-						sortable
-						size="short"
-						headers={sectHeader}
-						rows={sectRow}
-						page={sectPage}
-						pageSize={sectSize}
-						bind:selectedRowIds
-					>
-						<Toolbar>
-							<ToolbarContent>
-								<ToolbarSearch shouldFilterRows />
-								<Button
-									kind="ghost"
-									icon={Recycle}
-									iconDescription="Reload"
-									tooltipPosition="left"
-								/>
-								<Button
-									kind="ghost"
-									icon={AddAlt}
-									iconDescription="Create New"
-									tooltipPosition="left"
-								/>
-								<Button
-									kind="tertiary"
-									icon={Edit}
-									iconDescription="Edit Selected"
-									tooltipPosition="left"
-								/>
-								<Button
-									kind="primary"
-									icon={Save}
-									iconDescription="Save Changes"
-									tooltipPosition="left"
-									bind:disabled={edit}
-								/>
-								<Button
-									kind="danger"
-									icon={TrashCan}
-									iconDescription="Delete Selected"
-									tooltipPosition="left"
-									bind:disabled={edit}
-								/>
-							</ToolbarContent>
-						</Toolbar>
-					</DataTable>
-					<Pagination
-						bind:pageSize={sectSize}
-						bind:page={sectPage}
-						totalItems={sectRow.length}
-						pageSizeInputDisabled
-					/>
-					<!-- <Pagination {rows} /> -->
-				</div>
-			</div>
-			<br />
-			<hr />
-			<br />
-			<div class="w-full">
-				<div class="flex flex-col lg:flex-row">
-					<div class="w-full lg:w-1/4 lg:self-center">
-						<h6 class="underline">Section Information</h6>
+	{#if loclCL === 'god' || loclCL === 'administrator' }
+		<div class="flex flex-col h-auto pl-12 pt-12">
+			<Content>
+				<div class="flex flex-col gap-3 w-full">
+					<div class="flex md:hidden lg:hidden">
+						<p>
+							If you are seeing this message, your screen is too small.<br /><br />Change to a
+							device with a larger screen or rotate your device to view the master table.
+						</p>
 					</div>
-					<br />
-					<div class="flex flex-col w-full gap-3">
-						<div class="flex flex-col w-full lg:flex-row gap-3">
-							<ComboBox
-								titleText="Academic Year"
-								placeholder="Subject academic year"
-								items={[
-									{ id: '0', text: '2023-2024' },
-									{ id: '1', text: '2024-2025' },
-									{ id: '2', text: '2025-2026' },
-									{ id: '3', text: '2026-2027' },
-									{ id: '4', text: '2027-2028' },
-									{ id: '5', text: '2028-2029' },
-									{ id: '6', text: '2029-2030' },
-									{ id: '7', text: '2030-2031' },
-									{ id: '8', text: '2031-2032' },
-									{ id: '9', text: '2032-2033' },
-									{ id: '10', text: '2033-2034' },
-									{ id: '11', text: '2034-2035' },
-									{ id: '12', text: '2035-2036' },
-									{ id: '13', text: '2036-2037' },
-									{ id: '14', text: '2037-2038' },
-									{ id: '15', text: '2038-2039' },
-									{ id: '16', text: '2039-2040' },
-									{ id: '17', text: '2040-2041' },
-									{ id: '18', text: '2041-2042' },
-									{ id: '19', text: '2042-2043' },
-									{ id: '20', text: '2043-2044' },
-									{ id: '21', text: '2044-2045' },
-									{ id: '22', text: '2045-2046' },
-									{ id: '23', text: '2046-2047' },
-									{ id: '24', text: '2047-2048' }
-								]}
-								disabled={!edit}
-							/>
-							<TextInput labelText="Section ID" placeholder="Section ID here" readonly />
-							<TextInput
-								labelText="Section Name"
-								placeholder="Section name here"
-								readonly={!edit}
-							/>
-							<ComboBox
-								titleText="Section Status"
-								placeholder="Section status"
-								items={[
-									{ id: '0', text: 'ACTIVE' },
-									{ id: '1', text: 'INACTIVE' }
-								]}
-								disabled={!edit}
+					<div class="hidden md:flex lg:flex gap-3">
+						<div class="w-screen">
+							<div class="flex items-center justify-between h-8 pl-3 bg-stone-900">
+								<h6 class="text-white">Section Masterlist</h6>
+							</div>
+							<DataTable
+								bind:selectedRowIds
+								on:click:row--select={handleSelected}
+								radio
+								zebra
+								sortable
+								size="short"
+								headers={sectHeader}
+								rows={sectRow}
+								page={sectPage}
+								pageSize={sectSize}
+							>
+								<Toolbar>
+									<ToolbarContent>
+										<ToolbarSearch shouldFilterRows />
+										<Button
+											on:click={loadSectData}
+											kind="ghost"
+											icon={Recycle}
+											iconDescription="Reload"
+											tooltipPosition="left"
+										/>
+										<Button
+											on:click={() => (edit = true)}
+											disabled={edit}
+											kind="tertiary"
+											icon={Edit}
+											iconDescription="Edit Selected"
+											tooltipPosition="left"
+										/>
+										<Button
+											disabled={!edit}
+											on:click={updateSelected}
+											kind="primary"
+											icon={Save}
+											iconDescription="Save Changes"
+											tooltipPosition="left"
+										/>
+									</ToolbarContent>
+								</Toolbar>
+							</DataTable>
+							<Pagination
+								bind:pageSize={sectSize}
+								bind:page={sectPage}
+								totalItems={sectRow.length}
+								pageSizeInputDisabled
 							/>
 						</div>
-						<div class="flex flex-col w-full lg:flex-row gap-3">
-							<TextInput
-								labelText="Total Male Students"
-								placeholder="Total here"
-								readonly={!edit}
-							/>
-							<TextInput
-								labelText="Total Female Students"
-								placeholder="Total here"
-								readonly={!edit}
-							/>
-							<TextInput labelText="Total Students" placeholder="Total here" readonly={!edit} />
+					</div>
+					<div class="flex flex-col lg:flex-row gap-3">
+						<div class="w-full">
+							<div class="flex items-center justify-between h-8 pl-3 bg-stone-900">
+								<h6 class="text-white">Section Information</h6>
+							</div>
+							<Tile class="flex flex-col w-full lg:flex-row">
+								<div class="flex flex-col w-full gap-3">
+									<div class="flex flex-col gap-3">
+										<div class="flex flex-col lg:flex-row gap-3">
+											<ComboBox
+												bind:value={sectAY}
+												titleText="Academic Year"
+												placeholder="Section academic year"
+												items={[
+													{ id: '0', text: '2023-2024' },
+													{ id: '1', text: '2024-2025' },
+													{ id: '2', text: '2025-2026' },
+													{ id: '3', text: '2026-2027' },
+													{ id: '4', text: '2027-2028' },
+													{ id: '5', text: '2028-2029' },
+													{ id: '6', text: '2029-2030' },
+													{ id: '7', text: '2030-2031' },
+													{ id: '8', text: '2031-2032' },
+													{ id: '9', text: '2032-2033' },
+													{ id: '10', text: '2033-2034' },
+													{ id: '11', text: '2034-2035' },
+													{ id: '12', text: '2035-2036' },
+													{ id: '13', text: '2036-2037' },
+													{ id: '14', text: '2037-2038' },
+													{ id: '15', text: '2038-2039' },
+													{ id: '16', text: '2039-2040' },
+													{ id: '17', text: '2040-2041' },
+													{ id: '18', text: '2041-2042' },
+													{ id: '19', text: '2042-2043' },
+													{ id: '20', text: '2043-2044' },
+													{ id: '21', text: '2044-2045' },
+													{ id: '22', text: '2045-2046' },
+													{ id: '23', text: '2046-2047' },
+													{ id: '24', text: '2047-2048' }
+												]}
+												disabled={!edit}
+											/>
+											<TextInput
+												bind:value={sectID}
+												labelText="Section ID"
+												placeholder="Section ID here"
+												readonly
+											/>
+											<ComboBox
+												bind:value={sectYR}
+												titleText="Section Year"
+												placeholder="Select year"
+												items={[
+													{ id: '0', text: 'Grade 1' },
+													{ id: '1', text: 'Grade 2' },
+													{ id: '2', text: 'Grade 3' },
+													{ id: '3', text: 'Grade 4' },
+													{ id: '4', text: 'Grade 5' },
+													{ id: '5', text: 'Grade 6' },
+													{ id: '6', text: 'Grade 7' },
+													{ id: '7', text: 'Grade 8' },
+													{ id: '8', text: 'Grade 9' },
+													{ id: '9', text: 'Grade 10' },
+													{ id: '10', text: 'Grade 11' },
+													{ id: '11', text: 'Grade 12' }
+												]}
+												disabled={!edit}
+											/>
+											<TextInput
+												bind:value={sectNM}
+												labelText="Section Name"
+												placeholder="Section name here"
+												readonly={!edit}
+											/>
+										</div>
+										<div class="flex flex-col lg:flex-row justify-end">
+											<Toggle bind:toggled={sectST} labelText="Status" labelA="" labelB=""
+												>Sample</Toggle
+											>
+											<Button
+												on:click={generateSectID}
+												on:click={registerSect}
+												icon={Add}
+												disabled={!edit}>Create Section</Button
+											>
+										</div>
+									</div>
+								</div>
+							</Tile>
 						</div>
-						<ComboBox
-							titleText="Section Adviser"
-							placeholder="Select adviser"
-							items={[
-								{ id: '0', text: 'ACTIVE' },
-								{ id: '1', text: 'INACTIVE' }
-							]}
-							disabled={!edit}
-						/>
 					</div>
 				</div>
-			</div>
-			<br />
-			<hr />
-			<br />
-			<div class="hidden md:flex lg:flex gap-3">
-				<div class="w-screen">
-					<DataTable
-						zebra
-						sortable
-						size="short"
-						headers={listHeader}
-						rows={listRow}
-						page={listPage}
-						pageSize={listSize}
-					>
-						<Toolbar>
-							<ToolbarContent>
-								<ToolbarSearch shouldFilterRows />
-								<Button
-									kind="ghost"
-									icon={Recycle}
-									iconDescription="Reload"
-									tooltipPosition="left"
-								/>
-								<Button
-									kind="primary"
-									icon={Export}
-									iconDescription="Export Masterlist"
-									tooltipPosition="left"
-									bind:disabled={edit}
-								/>
-							</ToolbarContent>
-						</Toolbar>
-					</DataTable>
-					<Pagination
-						bind:pageSize={listSize}
-						bind:page={listPage}
-						totalItems={listRow.length}
-						pageSizeInputDisabled
-					/>
-					<!-- <Pagination {rows} /> -->
-				</div>
-			</div>
-		</Content>
+			</Content>
+		</div>
 	{:else}
 		<div class="flex flex-col h-screen justify-center lg:flex-row pl-10">
 			<!-- displayed on mobile -->

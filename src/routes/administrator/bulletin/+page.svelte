@@ -76,7 +76,7 @@
 	// user data
 	let userID = '',
 		userCL = '',
-		userST = '',
+		userST = false,
 		userUN = '',
 		userPW = '',
 		userAY = '',
@@ -244,7 +244,7 @@
 		} else {
 			userID = '';
 			userCL = '';
-			userST = '';
+			userST = false,
 			userUN = '';
 			userPW = '';
 			userAY = '';

@@ -18,7 +18,7 @@
 		TextInput
 	} from 'carbon-components-svelte';
 	// icons
-	import { Asleep, Checkmark, Debug, Home, Pen } from 'carbon-icons-svelte';
+	import { Asleep, Checkmark, Debug, Home, Logout, Pen } from 'carbon-icons-svelte';
 	// pictograms
 	// firebase
 	import { addDoc, collection, doc, getDocs, query, where } from 'firebase/firestore';
@@ -38,7 +38,8 @@
 	// user data
 	let userID = '',
 		userCL = '',
-		userST = '',
+		userST = false,
+		userRP = false,
 		userUN = '',
 		userPW = '',
 		userAY = '2023-2024',
@@ -241,7 +242,8 @@
 			const userData = {
 				userID,
 				userCL: 'student',
-				userST: 'INACTIVE',
+				userST: false,
+				userRP: false,
 				userUN,
 				userPW,
 				userAY,

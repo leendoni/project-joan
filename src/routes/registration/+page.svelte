@@ -41,7 +41,8 @@
 	// user data
 	let userID = '',
 		userCL = '',
-		userST = '',
+		userST = false,
+		userRP = false,
 		userUN = '',
 		userPW = '',
 		userAY = '2023-2024',
@@ -255,7 +256,8 @@
 			const userData = {
 				userID,
 				userCL: 'employee',
-				userST: 'INACTIVE',
+				userST: false,
+				userRP: false,
 				userUN,
 				userPW: pass,
 				userAY,

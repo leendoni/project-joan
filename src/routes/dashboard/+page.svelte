@@ -3,9 +3,11 @@
 	// svelte
 	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
-// components
+	// components
 	import {
 		Button,
+		ButtonSet,
+		ComboBox,
 		Content,
 		Header,
 		HeaderUtilities,
@@ -20,7 +22,8 @@
 		SideNavMenu,
 		TextArea,
 		TextInput,
-		Tile
+		Tile,
+		ToastNotification
 	} from 'carbon-components-svelte';
 	// icons
 	import {
@@ -40,17 +43,20 @@
 		EventSchedule,
 		Events,
 		GroupObjectsNew,
+		HardwareSecurityModule,
 		Information,
 		Logout,
 		Money,
 		Notebook,
 		NotebookReference,
 		Partnership,
+		Recycle,
 		Report,
 		Save,
 		Settings,
 		SettingsAdjust,
 		Stethoscope,
+		TrashCan,
 		UserSponsor,
 		Wallet
 	} from 'carbon-icons-svelte';
@@ -58,7 +64,7 @@
 	// firebase
 	import { addDoc, collection, doc, getDocs, query, updateDoc, where } from 'firebase/firestore';
 	import { db } from '../../firebase';
-// for password hashing
+	// for password hashing
 	import bcrypt from 'bcryptjs';
 	// #endregion
 	// #region database values
@@ -74,7 +80,7 @@
 	// user data
 	let userID = '',
 		userCL = '',
-		userST = '',
+		userST = false,
 		userUN = '',
 		userPW = '',
 		userAY = '',
@@ -242,8 +248,7 @@
 		} else {
 			userID = '';
 			userCL = '';
-			userST = '';
-			userUN = '';
+			(userST = false), (userUN = '');
 			userPW = '';
 			userAY = '';
 			userSM = '';
@@ -539,113 +544,238 @@
 		{/if}
 	</SideNav>
 
-	<div class="flex flex-col h-screen pl-10 pt-10">
+	<div class="flex flex-col h-screen pl-12 pt-12">
 		<Content>
-			<div class="flex flex-col gap-3">
-				<div class="flex flex-col gap-3 lg:flex-row">
-					<!-- notifs -->
-					<div class="w-full lg:w-1/3">
-						<Tile class="rounded-xl h-80">
-							<div>
-								<h6>Notifications</h6>
+			<div class="flex flex-wrap w-full gap-3">
+				<div class="flex flex-col w-full lg:flex-row gap-3">
+					<div class="flex flex-wrap w-full lg:w-2/3 gap-3">
+						<div class="w-full">
+							<div class="flex items-center justify-between h-8 pl-3 bg-stone-900">
+								<h6 class="text-white">Campus Bulletin</h6>
+								<Button
+									kind="secondary"
+									size="small"
+									icon={Recycle}
+									iconDescription="Reload"
+									tooltipPosition="left"
+								/>
 							</div>
-							<br />
-							<div class="overflow-y-auto w-full h-60">
-								{#if loclCL === 'student'}
-									<InlineNotification
-										hideCloseButton
-										kind="warning"
-										title="Developers' Notice:"
-										subtitle="Some features might not work as expected. Expect bugs to occur. If you encounter one, use the 'Report a Bug' feature."
-									/>
-								{:else}
-									<InlineNotification
-										hideCloseButton
-										kind="warning"
-										title="Developers' Notice:"
-										subtitle="Some features might not work as expected. Expect bugs to occur. If you encounter one, use the 'Report a Bug' feature."
-									/>
-								{/if}
-							</div>
-						</Tile>
-					</div>
-					<!-- acc info -->
-					<div class="w-full lg:w-1/3">
-						<Tile class="rounded-xl h-80">
-							<div>
-								<h6>Account Information</h6>
-							</div>
-							<br />
-							<div class="flex flex-col w-full lg:flex-row gap-3">Content goes here</div>
-							<br />
-						</Tile>
-					</div>
-					<!-- change pass -->
-					<div class="w-full lg:w-1/3">
-						<Tile class="rounded-xl h-80">
-							<div>
-								<h6>Credential Manager</h6>
-							</div>
-							<br />
-							<div class="flex flex-col w-full lg:flex-row gap-3">
-								<div class="flex flex-col w-full gap-3">
-									<PasswordInput
-										bind:value={userPW}
-										size="sm"
-										labelText="Current Password"
-										placeholder="Enter password"
-										tooltipPosition="left"
-									/>
-									<PasswordInput
-										bind:value={userPW}
-										size="field"
-										labelText="New Password"
-										placeholder="Enter password"
-										tooltipPosition="left"
-									/>
-									<PasswordInput
-										bind:value={userPW}
-										size="field"
-										labelText="Confirm Password"
-										placeholder="Enter password"
-										tooltipPosition="left"
-									/>
-									<div class="flex flex-row justify-end">
-										<Button size="sm" kind="ghost" icon={Edit}>Change</Button>
-										<Button size="sm" kind="tertiary" icon={Save}>Update</Button>
+							<Tile class="h-auto">
+								<div class="flex flex-wrap">
+									<!-- announcement block -->
+									<div class="flex flex-col p-3 gap-3 w-full h-auto lg:w-1/3">
+										<div class="h-1 bg-red-500" />
+										<div class="flex flex-col w-full">
+											<p class="italic text-sm"><strong>Important Announcement</strong></p>
+											<p class="text-lg">Suspension of Classes</p>
+											<p class="italic text-xs">by: Admin Arcy</p>
+										</div>
+										<hr />
+										<p class="inline-flex flex-col text-sm whitespace-normal">
+											Due to inclement weather, classes are suspended for Monday, 09 October 2023.
+											Classes will resume on Tuesday if the weather permits.
+										</p>
+									</div>
+									<!-- announcement block -->
+									<div class="flex flex-col p-3 gap-3 w-full h-auto lg:w-1/3">
+										<div class="h-1 bg-amber-500" />
+										<div class="flex flex-col w-full">
+											<p class="italic text-sm"><strong>Announcement</strong></p>
+											<p class="text-lg">Filing of Candidacy</p>
+											<p class="italic text-xs">by: Admin Arcy</p>
+										</div>
+										<hr />
+										<p class="inline-flex flex-col text-sm whitespace-normal">
+											The filing for certificates of candidacy for the upcoming SSG elections are
+											open starting today, 15 November 2023 until 31 November 2023. Students may
+											file their forms at the Office of the SSG Adviser.
+										</p>
+									</div>
+									<!-- announcement block -->
+									<div class="flex flex-col p-3 gap-3 w-full h-auto lg:w-1/3">
+										<div class="h-1 bg-sky-500" />
+										<div class="flex flex-col w-full">
+											<p class="italic text-sm"><strong>Upcoming Event</strong></p>
+											<p class="text-lg">SSG Elections</p>
+											<p class="italic text-xs">by: Admin Arcy</p>
+										</div>
+										<hr />
+										<p class="inline-flex flex-col text-sm whitespace-normal">
+											The Elections for Supreme Student Council will be held on 05 December 2023.
+											All aspiring candidates are encouraged to file their certificates of candidacy
+											as early as possible.
+										</p>
 									</div>
 								</div>
+							</Tile>
+						</div>
+					</div>
+					<div class="flex flex-col gap-3 w-full lg:w-1/3">
+						<div class="w-full overflow-y-auto">
+							<div class="flex items-center justify-between h-8 pl-3 bg-stone-900">
+								<h6 class="text-white">Notifications</h6>
+								<Button
+									kind="secondary"
+									size="small"
+									icon={Edit}
+									iconDescription="Edit"
+									tooltipPosition="left"
+								/>
 							</div>
-							<br />
-						</Tile>
+							<Tile class="h-auto">
+								<div class="flex flex-col w-full">
+									<InlineNotification
+										hideCloseButton
+										kind="warning"
+										title="System Notice:"
+										subtitle="This application is still under development. Some features might not work as expected."
+									/>
+									<InlineNotification
+										hideCloseButton
+										kind="info-square"
+										title="Gradebook Open"
+										subtitle="You can now post your students' grades on the Gradebook."
+									/>
+								</div>
+							</Tile>
+						</div>
 					</div>
 				</div>
-				<!-- campus bulletin -->
-				<div class="w-full">
-					<Tile class="rounded-xl h-80">
-						<div>
-							<h6>Campus Bulletin</h6>
-						</div>
-						<div>
-							<br />
-							<div class="overflow-x-auto whitespace-nowrap w-full">
-								<!-- announcement block -->
-								<div class="inline-flex flex-col p-3 gap-3 w-full lg:w-1/4">
-									<div class="h-2 rounded-lg bg-red-600" />
-									<div class="flex flex-col w-full">
-										<p class="italic text-sm"><strong>Announcement</strong></p>
-										<p class="text-lg whitespace-normal">Title of post goes here</p>
-										<p class="italic text-xs">Subtitle goes here</p>
-									</div>
-									<hr />
-									<p class="inline-flex flex-col text-sm whitespace-normal">
-										Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla quis orci eget
-										massa vestibulum rhoncus. Suspendisse eget ex nec urna dapibus ultrices.
-									</p>
+				<div class="flex flex-col w-full lg:flex-row gap-3">
+					<div class="flex flex-wrap w-full lg:w-1/2 gap-3">
+						<div class="w-full">
+							<div class="flex items-center justify-between h-8 pl-3 bg-stone-900">
+								<h6 class="text-white">User Information</h6>
+								<div class="flex">
+									<Button
+										kind="secondary"
+										size="small"
+										icon={Edit}
+										iconDescription="Edit"
+										tooltipPosition="left"
+									/>
+									<Button
+										kind="secondary"
+										size="small"
+										icon={Save}
+										iconDescription="Save Changes"
+										tooltipPosition="left"
+									/>
 								</div>
 							</div>
+							<Tile class="flex flex-col w-full lg:flex-row">
+								<div class="flex flex-col w-full gap-3">
+									<div class="flex flex-col gap-3">
+										<div class="flex flex-col lg:flex-row gap-3">
+											<TextInput
+												bind:value={userLN}
+												labelText="Last Name"
+												placeholder="Your last name"
+												readonly
+											/>
+											<TextInput
+												bind:value={userFN}
+												labelText="First Name"
+												placeholder="Your first name"
+												readonly
+											/>
+											<TextInput
+												bind:value={userMN}
+												labelText="Middle Name"
+												placeholder="Your middle name"
+												readonly
+											/>
+										</div>
+										<div class="flex flex-col lg:flex-row gap-3">
+											<TextInput
+												bind:value={userSF}
+												labelText="Suffix (if any)"
+												placeholder="Sr., Jr., III., etc."
+												readonly
+											/>
+											<TextInput
+												bind:value={userSX}
+												labelText="Employee Gender"
+												placeholder="Gender"
+												readonly
+											/>
+										</div>
+										<TextInput
+											bind:value={userAD}
+											labelText="Employee Address"
+											placeholder="Your complete address"
+											readonly
+										/>
+										<div class="flex flex-col lg:flex-row gap-3">
+											<TextInput
+												bind:value={userCN}
+												labelText="Employee Contact Number"
+												placeholder="09876543210"
+												readonly
+											/>
+											<TextInput
+												bind:value={userEC}
+												labelText="Emergency Contact Number"
+												placeholder="09876543210"
+												readonly
+											/>
+										</div>
+										<div class="flex flex-col lg:flex-row gap-3">
+											<TextInput
+												bind:value={userCP}
+												labelText="Contact Person"
+												placeholder="Your contact person"
+												readonly
+											/>
+											<TextInput
+												bind:value={userCR}
+												labelText="Relation (optional)"
+												placeholder="Relation to contact person"
+												readonly
+											/>
+										</div>
+									</div>
+								</div>
+							</Tile>
 						</div>
-					</Tile>
+					</div>
+					<div class="flex flex-col gap-3 w-full lg:w-1/2">
+						<div class="w-full overflow-y-auto">
+							<div class="flex items-center justify-between h-8 pl-3 bg-stone-900">
+								<h6 class="text-white">Account Options</h6>
+							</div>
+							<Tile class="h-auto">
+								<div class="flex flex-col gap-3">
+									<div class="flex items-center justify-between h-8">
+										<h6>Change your password</h6>
+										<div class="flex">
+											<Button size="small" tooltipPosition="left" iconDescription="Edit password" icon={HardwareSecurityModule} />
+											<Button size="small" tooltipPosition="left" iconDescription="Save password" icon={Save} />
+										</div>
+									</div>
+									<div class="flex flex-col gap-3 lg:flex-row">
+										<PasswordInput
+											bind:value={userPW}
+											labelText="Password"
+											placeholder="Enter password"
+											tooltipPosition="left"
+										/>
+										<PasswordInput
+											bind:value={userPW}
+											labelText="Confirm Password"
+											placeholder="Confirm password"
+											tooltipPosition="left"
+										/>
+									</div>
+									<hr />
+									<div class="flex items-center justify-between h-8">
+										<h6>Danger Zone</h6>
+									</div>
+									<Button disabled kind="danger" icon={TrashCan}>Delete Account</Button>
+								</div>
+							</Tile>
+						</div>
+					</div>
 				</div>
 			</div>
 		</Content>

@@ -54,7 +54,7 @@
 	// user data
 	let userID = '',
 		userCL = '',
-		userST = '',
+		userST = false,
 		userUN = '',
 		userPW = '',
 		userLN = '',
@@ -123,7 +123,7 @@
 
 			userST = userData.userST;
 
-			if (userST == 'ACTIVE') {
+			if (userST == true) {
 				// Check the password using the function from before
 				const isPasswordValid = await bcrypt.compare(nputPW, userData.userPW);
 
@@ -232,7 +232,7 @@
 	// update user data
 	async function updateUserData() {
 		const updatedData = {
-			userRP: 'true'
+			userRP: true
 		};
 
 		const q = query(getUsers, where('userID', '==', nputID));
@@ -244,7 +244,7 @@
 		}
 
 		const docId = snapshot.docs[0].id;
-		const docRef = doc(db, acadYR, '0303001', 'users', docId);
+		const docRef = doc(db, schlID, 'data', 'users', docId);
 
 		try {
 			await updateDoc(docRef, updatedData);

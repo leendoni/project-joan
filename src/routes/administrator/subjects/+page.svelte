@@ -85,7 +85,7 @@
 	// user data
 	let userID = '',
 		userCL = '',
-		userST = '',
+		userST = false,
 		userUN = '',
 		userPW = '',
 		userLN = '',
